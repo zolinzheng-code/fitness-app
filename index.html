@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="训练台">
+<meta name="theme-color" content="#0B0E14">
+<title>训练台 · 健体训练与营养追踪</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+--steel-900:#0B0E14;--steel-850:#10151E;--steel-800:#161C28;--steel-750:#1C2433;
+--steel-700:#242E40;--steel-600:#2F3B52;--steel-500:#3E4D69;
+--ink:#F0F4F8;--ink-2:#A3B1C6;--ink-3:#6E7D94;
+--lime:#C8F24E;--orange:#FF6B35;--cyan:#35D6E8;--magenta:#FF4D8D;
+--amber:#FFB020;--red:#FF4757;--green:#3DDC84;
+--r-lg:16px;--r-md:12px;--r-sm:8px;
+--sh-1:0 4px 20px -6px rgba(0,0,0,.6);
+--sh-2:0 20px 50px -15px rgba(0,0,0,.85);
+--grad-hot:linear-gradient(100deg,#FF6B35,#FF4D8D);
+--grad-cool:linear-gradient(100deg,#35D6E8,#C8F24E);
+}
+html,body{margin:0;padding:0;background:var(--steel-900);color:var(--ink);
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+font-size:14.5px;line-height:1.5;-webkit-text-size-adjust:100%;min-height:100vh}
+.shell{max-width:1080px;margin:0 auto;padding:0 14px 80px}
+*{scrollbar-width:thin;scrollbar-color:var(--steel-500) var(--steel-850)}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--steel-850)}
+::-webkit-scrollbar-thumb{background:var(--steel-600);border-radius:99px}
+
+/* Top Navigation */
+.top{position:sticky;top:0;z-index:60;margin:0 -14px;padding:10px 14px 0;
+background:rgba(11,14,20,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--steel-700)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:10px;align-items:center}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--grad-hot);display:grid;place-items:center}
+.mark svg{width:20px;height:20px;display:block}
+.bname{font-size:17px;font-weight:800;letter-spacing:.3px}
+.bsub{font-size:11.5px;color:var(--ink-3)}
+.bar-r{display:flex;gap:8px;align-items:center}
+.chip{display:inline-flex;gap:6px;align-items:center;font-size:11.5px;font-weight:700;
+padding:5px 10px;border-radius:99px;border:1px solid var(--steel-600);background:var(--steel-800);color:var(--ink-2)}
+.chip.ok{border-color:rgba(61,220,132,.45);color:var(--green);background:rgba(61,220,132,.09)}
+.chip.warn{border-color:rgba(255,176,32,.5);color:var(--amber);background:rgba(255,176,32,.1)}
+.chip.bad{border-color:rgba(255,71,87,.5);color:var(--red);background:rgba(255,71,87,.1)}
+.dot{width:6px;height:6px;border-radius:99px;background:currentColor}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:9px 0 10px}
+.tabs button{flex:0 0 auto;min-height:36px;padding:6px 14px;border-radius:99px;cursor:pointer;
+background:var(--steel-800);border:1px solid var(--steel-600);color:var(--ink-2);font:700 13px/1 inherit;transition:.15s}
+.tabs button:hover{color:var(--ink);border-color:var(--steel-500)}
+.tabs button.on{background:var(--grad-hot);color:#160b06;border-color:transparent}
+
+/* Layout & Cards */
+.view{padding-top:14px}
+.hide{display:none!important}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(135px,1fr))}
+.card{background:var(--steel-800);border:1px solid var(--steel-700);border-radius:var(--r-lg);padding:14px;box-shadow:var(--sh-1);position:relative}
+.card.accent{border-top:2px solid var(--cyan)}
+h1,h2,h3{margin:0;font-weight:800}
+.ch{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:11px}
+.ch h2{font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tag{font:700 11px/1 inherit;color:var(--ink-2);background:var(--steel-750);border:1px solid var(--steel-600);border-radius:6px;padding:4px 7px}
+.hint{color:var(--ink-3);font-size:12px;margin:8px 0 0}
+.hint b{color:var(--ink-2)}
+
+/* Hero & Metrics */
+.hero{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:center}
+@media(max-width:760px){.hero{grid-template-columns:1fr}}
+.grade{display:flex;gap:14px;align-items:center}
+.gbadge{width:76px;height:76px;flex:0 0 auto;border-radius:18px;display:grid;place-items:center;font:900 36px/1 inherit;color:#0c0f13}
+.g-S{background:var(--grad-cool)}.g-A{background:linear-gradient(135deg,#C8F24E,#3DDC84)}
+.g-B{background:linear-gradient(135deg,#FFB020,#FF6B35)}.g-C{background:linear-gradient(135deg,#FF4757,#FF4D8D)}
+.gtxt b{display:block;font-size:17px}
+.gtxt p{margin:4px 0 0;color:var(--ink-2);font-size:12.5px}
+.gmeta{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+
+.m{background:var(--steel-750);border:1px solid var(--steel-600);border-radius:var(--r-md);padding:10px 12px;position:relative;overflow:hidden}
+.m::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--steel-500)}
+.m.ok::after{background:var(--green)}.m.warn::after{background:var(--amber)}
+.m.bad::after{background:var(--red)}.m.cy::after{background:var(--cyan)}.m.li::after{background:var(--lime)}
+.m .k{font-size:11px;color:var(--ink-3)}
+.m .v{font-size:21px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
+.m .n{font-size:11px;color:var(--ink-2);margin-top:2px}
+.m.ok .v{color:var(--green)}.m.warn .v{color:var(--amber)}.m.bad .v{color:var(--red)}
+.m.cy .v{color:var(--cyan)}.m.li .v{color:var(--lime)}
+
+/* Forms & Buttons */
+label{display:block;font-size:11.5px;color:var(--ink-2);margin-bottom:4px;font-weight:600}
+input,select,textarea{width:100%;background:var(--steel-900);color:var(--ink);border:1px solid var(--steel-600);
+border-radius:var(--r-sm);padding:8px 10px;font:400 14.5px/1.3 inherit;transition:.15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 2px rgba(53,214,232,.18)}
+textarea{resize:vertical;min-height:70px;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.in-sm{width:68px!important;padding:5px 6px!important;font-size:13.5px!important;text-align:center;font-variant-numeric:tabular-nums}
+.btn{min-height:38px;padding:8px 14px;border:0;border-radius:var(--r-sm);cursor:pointer;
+font:800 13.5px/1 inherit;background:var(--grad-hot);color:#160b06;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.btn:hover{filter:brightness(1.08)}
+.btn.cool{background:var(--grad-cool);color:#08120f}
+.btn.ghost{background:var(--steel-750);color:var(--ink);border:1px solid var(--steel-600)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn.danger{background:transparent;color:var(--red);border:1px solid rgba(255,71,87,.5)}
+.btn.danger:hover{background:rgba(255,71,87,.12)}
+.btn.sm{min-height:32px;padding:6px 11px;font-size:12px;border-radius:7px}
+.btn.xs{min-height:28px;padding:4px 8px;font-size:11.5px;border-radius:6px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.row>*{min-width:0}.f1{flex:1 1 110px}.f2{flex:2 1 180px}.fa{flex:0 0 auto}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pillbtn{min-height:32px;padding:5px 11px;border-radius:99px;cursor:pointer;font:700 12px/1 inherit;
+background:var(--steel-750);border:1px solid var(--steel-600);color:var(--ink-2);transition:.15s}
+.pillbtn:hover{border-color:var(--lime);color:var(--lime)}
+.pillbtn.on{background:rgba(200,242,78,.16);border-color:var(--lime);color:var(--lime)}
+
+/* Tables */
+.tw{overflow-x:auto;border:1px solid var(--steel-600);border-radius:var(--r-md);background:var(--steel-900)}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;min-width:500px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--steel-700);white-space:nowrap;vertical-align:middle}
+th{background:var(--steel-750);color:var(--ink-2);font:700 11px/1.2 inherit;letter-spacing:.3px}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums}
+.grip{cursor:grab;color:var(--ink-3);font-size:14px;user-select:none}
+.badge{display:inline-block;border-radius:6px;padding:3px 7px;font:800 11px/1.2 inherit}
+.b-ok{background:rgba(61,220,132,.16);color:var(--green)}
+.b-mid{background:rgba(255,176,32,.16);color:var(--amber)}
+.b-bad{background:rgba(255,71,87,.16);color:var(--red)}
+.b-na{background:var(--steel-700);color:var(--ink-3)}
+.b-cy{background:rgba(53,214,232,.16);color:var(--cyan)}
+.b-li{background:rgba(200,242,78,.16);color:var(--lime)}
+.b-mg{background:rgba(255,77,141,.16);color:var(--magenta)}
+
+/* List Items & Progress Bars */
+.item{background:var(--steel-750);border:1px solid var(--steel-600);border-radius:var(--r-md);padding:10px 12px}
+.item+.item{margin-top:8px}
+.item .it{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.item .it b{font-size:13.5px}
+.item .id{color:var(--ink-2);font-size:12px;margin-top:4px}
+.item.ok{border-left:3px solid var(--green)}.item.mid{border-left:3px solid var(--amber)}
+.item.bad{border-left:3px solid var(--red)}.item.cy{border-left:3px solid var(--cyan)}
+.bar{height:7px;background:var(--steel-900);border-radius:99px;overflow:hidden;margin-top:7px;position:relative}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--grad-cool);transition:width .35s}
+.bar i.warn{background:linear-gradient(90deg,var(--amber),var(--orange))}
+.bar i.bad{background:linear-gradient(90deg,var(--red),var(--magenta))}
+.bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink-3);opacity:.6}
+.empty{color:var(--ink-3);font-size:12.5px;text-align:center;padding:22px 12px;border:1px dashed var(--steel-600);border-radius:var(--r-md)}
+.note{border-left:3px solid var(--orange);background:var(--steel-750);padding:9px 12px;border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:12px;color:var(--ink-2);margin-top:10px}
+.note.cy{border-color:var(--cyan)}.note.bad{border-color:var(--red)}.note.li{border-color:var(--lime)}
+
+/* Session Cards */
+.slist{display:grid;gap:9px}
+.scard{display:flex;gap:11px;align-items:flex-start;background:var(--steel-750);border:1px solid var(--steel-600);border-radius:var(--r-md);padding:11px;cursor:pointer;transition:.15s}
+.scard:hover{border-color:var(--cyan)}
+.scard.sel{border-color:var(--lime);background:rgba(200,242,78,.06)}
+.scard input[type=checkbox]{width:18px;height:18px;margin:2px 0 0;accent-color:var(--lime)}
+.sg{width:40px;height:40px;flex:0 0 auto;border-radius:10px;display:grid;place-items:center;font:900 18px/1 inherit;color:#0c0f13}
+.sb{flex:1 1 auto;min-width:0}
+.sb .l1{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.sb .l1 b{font-size:14px}
+.sb .l2{color:var(--ink-2);font-size:12px;margin-top:3px}
+.sb .l3{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.mini{font:700 10.5px/1 inherit;padding:3px 6px;border-radius:4px;background:var(--steel-700);color:var(--ink-2)}
+
+/* Drawer */
+.scrim{position:fixed;inset:0;z-index:80;background:rgba(6,8,11,.72);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:.2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:90;top:0;right:0;bottom:0;width:min(540px,100%);background:var(--steel-800);border-left:1px solid var(--steel-600);
+box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dh{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--steel-700)}
+.db{padding:14px;overflow-y:auto;flex:1 1 auto}
+.df{padding:11px 15px;border-top:1px solid var(--steel-700);display:flex;flex-wrap:wrap;gap:8px}
+
+/* Charts & Toast */
+.chart{width:100%;overflow-x:auto}
+.chart svg{display:block;min-width:480px;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.lg{display:inline-flex;gap:5px;align-items:center;font:700 11px/1 inherit;padding:5px 9px;border-radius:99px;border:1px solid var(--steel-600);background:var(--steel-750);color:var(--ink-2);cursor:pointer}
+.lg.off{opacity:.35}
+.lg i{width:9px;height:9px;border-radius:2px}
+.dots{display:grid;grid-template-columns:repeat(auto-fill,minmax(14px,1fr));gap:4px;margin-top:8px}
+.dots i{aspect-ratio:1;border-radius:3px;background:var(--steel-700);display:block}
+.dots i.on{background:var(--grad-cool)}
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:120;display:flex;flex-direction:column;gap:6px;align-items:center;max-width:92vw}
+.toast{display:flex;gap:10px;align-items:center;background:var(--steel-700);color:var(--ink);border:1px solid var(--steel-500);border-radius:99px;padding:9px 15px;font:700 13px/1.2 inherit;box-shadow:var(--sh-2)}
+.toast.ok{border-color:rgba(61,220,132,.6)}.toast.bad{border-color:rgba(255,71,87,.6)}
+.kv{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(135px,1fr))}
+.sect-t{font:800 11.5px/1 inherit;letter-spacing:.8px;color:var(--ink-3);margin:16px 0 8px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Top Bar -->
+  <div class="top">
+    <div class="bar">
+      <div class="brand">
+        <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#160b06" stroke-width="2.4" stroke-linecap="round"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg></div>
+        <div>
+          <div class="bname">训练台 · 练四休一</div>
+          <div class="bsub">胸 → 腿 → 肩 → 背 → 休 · 健体标准</div>
+        </div>
+      </div>
+      <div class="bar-r">
+        <span class="chip" id="cloudChip" style="cursor:pointer" title="点击配置或立即同步"><i class="dot"></i><span id="cloudTxt">☁️ 未绑云端</span></span>
+        <span class="chip" id="storeChip"><i class="dot"></i><span id="storeTxt">—</span></span>
+        <button class="btn cool sm" id="packBtn">复制教练包</button>
+      </div>
+    </div>
+    <div class="tabs" id="tabs">
+      <button data-v="log" class="on">1. 记训练</button>
+      <button data-v="nutri">2. 记营养</button>
+      <button data-v="review">3. 复盘与处方</button>
+      <button data-v="hist">4. 历史与趋势</button>
+      <button data-v="body">5. 身体与基准</button>
+      <button data-v="data">6. ☁️ 云同步</button>
+    </div>
+  </div>
+
+  <!-- VIEW 1: LOG (Default & Streamlined) -->
+  <div class="view" id="v-log">
+    <div class="card" id="aiCard" style="margin-bottom:12px;border-left:3px solid var(--lime);background:linear-gradient(100deg,rgba(200,242,78,.09),rgba(53,214,232,.05))">
+      <div class="ch" style="margin-bottom:4px">
+        <h2 style="font-size:14px;color:var(--lime)"><span id="aiTitle">🤖 AI 动态教练批注</span></h2>
+        <span class="tag" id="aiDate">最新动态处方</span>
+      </div>
+      <div id="aiText" style="font-size:12.5px;color:var(--ink-2);line-height:1.5"></div>
+    </div>
+    <div class="card accent">
+      <div class="ch">
+        <h2>今日训练 <span class="tag" id="cycleHint">推荐部位</span></h2>
+        <div class="row">
+          <button class="btn cool sm" id="loadPreset">⚡ 载入标准处方</button>
+          <button class="btn ghost sm" id="dupLast">载入上次同部位</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f1"><label>日期</label><input type="date" id="sDate"></div>
+        <div class="f1"><label>部位（练四休一）</label><select id="sPart"><option value="胸">胸（上胸+中束）</option><option value="腿">腿（深蹲+后链）</option><option value="肩">肩（中后束+手臂）</option><option value="背">背（引体+后束）</option></select></div>
+        <div class="f1"><label>时长（分钟）</label><input type="number" id="sDur" inputmode="numeric" placeholder="65"></div>
+        <div class="f2"><label>备注</label><input id="sNote" placeholder="状态、泵感、关节感受（可选）"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="ch">
+        <h2>本课组次明细 <span class="tag" id="dCount">0 组</span></h2>
+        <div class="row">
+          <button class="btn cool sm" id="saveS">✓ 保存并看复盘</button>
+          <button class="btn ghost sm" id="saveStay">仅保存</button>
+          <button class="btn danger xs" id="dClear">清空</button>
+        </div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th></th><th>动作</th><th>肌群</th><th>负荷 (可直接改)</th><th>次数</th><th>RIR</th><th>1RM / 强度</th><th>判定</th><th>操作</th></tr></thead>
+          <tbody id="dBody"></tbody>
+        </table>
+      </div>
+      <div id="dEmpty" class="empty" style="margin-top:8px">还没有组次。点上方「⚡ 载入标准处方」一键生成全套动作，或点下方动作胶囊逐组添加。</div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h2>快速加组</h2><span class="tag" id="wHint">总重</span></div>
+      <div style="margin-bottom:10px">
+        <label>点选当前部位常用动作（自动带出推荐配重）：</label>
+        <div class="pills" id="partExPills"></div>
+      </div>
+      <div class="row">
+        <div class="f2"><label>动作名称</label><input list="exList" id="iEx" placeholder="选择或输入动作"><datalist id="exList"></datalist></div>
+        <div class="f1"><label>肌群</label><select id="iMus"></select></div>
+        <div class="f1"><label id="iWLab">重量 kg</label><input type="number" id="iW" inputmode="decimal" step="0.5"></div>
+        <div class="f1"><label>次数</label><input type="number" id="iR" inputmode="numeric"></div>
+        <div class="f1"><label>RIR</label><input type="number" id="iRIR" inputmode="numeric" placeholder="1"></div>
+        <div class="fa"><button class="btn" id="addSet">+ 加 1 组</button></div>
+        <div class="fa"><button class="btn ghost" id="add3Set">+ 连加 3 组</button></div>
+      </div>
+      <div class="row" style="margin-top:8px;align-items:center">
+        <span style="font-size:11.5px;color:var(--ink-3);font-weight:700">快捷 RIR：</span>
+        <div class="pills" id="rirPills">
+          <button class="pillbtn" data-v="0">0 力竭</button>
+          <button class="pillbtn on" data-v="1">1 留1次</button>
+          <button class="pillbtn" data-v="2">2 留2次</button>
+          <button class="pillbtn" data-v="3">3 热身/余力</button>
+        </div>
+        <span class="hint" id="convHint" style="margin:0 0 0 auto"></span>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:12px">
+      <div class="card"><div class="ch"><h2>本课容量核查 <span class="tag">单肌群 8–12 组最佳</span></h2></div><div id="dVol"></div></div>
+      <div class="card"><div class="ch"><h2>本课刺激质量</h2></div><div class="grid g4" id="dQual"></div>
+        <div class="note li" id="dQualNote"></div></div>
+    </div>
+  </div>
+
+  <!-- VIEW 2: NUTRITION -->
+  <div class="view hide" id="v-nutri">
+    <div class="card accent">
+      <div class="ch">
+        <h2>今日营养与恢复 <span class="tag" id="nTargetTag">—</span></h2>
+        <div class="row">
+          <button class="btn ghost xs" id="waterAdd">💧 +1杯水(250ml)</button>
+          <button class="btn danger xs" id="nReset">清零今日</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f1"><label>日期</label><input type="date" id="nDate"></div>
+        <div class="f1"><label>蛋白质 g (目标155)</label><input type="number" id="nP" inputmode="decimal"></div>
+        <div class="f1"><label>碳水 g (目标235)</label><input type="number" id="nC" inputmode="decimal"></div>
+        <div class="f1"><label>脂肪 g (目标65)</label><input type="number" id="nF" inputmode="decimal"></div>
+        <div class="f1"><label>饮水 杯(250ml)</label><input type="number" id="nW" inputmode="numeric"></div>
+        <div class="f1"><label>睡眠 小时</label><input type="number" id="nS" inputmode="decimal" step="0.5"></div>
+        <div class="fa"><button class="btn cool" id="nSave">保存</button></div>
+      </div>
+      <div style="margin-top:11px">
+        <label>⚡ 快捷点选食物（点击直接累加并自动保存）：</label>
+        <div class="pills" id="quickRow"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h2>今日达标进度</h2></div>
+      <div class="grid g4" id="nNums"></div>
+      <div style="margin-top:11px" id="nBars"></div>
+      <div class="note" id="nNote"></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:12px">
+      <div class="card"><div class="ch"><h2>近 14 天蛋白质趋势</h2></div><div class="chart" id="proChart"></div></div>
+      <div class="card"><div class="ch"><h2>日常补剂备忘</h2></div><div id="supp"></div></div>
+    </div>
+  </div>
+
+  <!-- VIEW 3: REVIEW -->
+  <div class="view hide" id="v-review">
+    <div id="lostBanner"></div>
+    <div class="card accent">
+      <div class="ch"><h2>最新训练复盘 <span class="tag" id="rvDate">—</span></h2>
+        <button class="btn ghost sm" id="rvOpen">编辑本次明细</button></div>
+      <div class="hero">
+        <div class="grade"><div class="gbadge" id="rvBadge"><span>—</span></div>
+          <div class="gtxt"><b id="rvTitle">还没有记录</b><p id="rvDesc">去「记训练」保存后自动生成评级。</p>
+            <div class="gmeta" id="rvMeta"></div></div></div>
+        <div class="grid g4" id="rvNums"></div>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:12px">
+      <div class="card"><div class="ch"><h2>关键修正项</h2></div><div id="rvFlags"></div></div>
+      <div class="card"><div class="ch"><h2>达标亮点</h2></div><div id="rvGreens"></div></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h2>下次同部位进阶处方 <span class="tag">双进阶自动推算</span></h2>
+        <button class="btn cool sm" id="rxLoad">一键载入到记训练</button></div>
+      <div class="tw"><table><thead><tr><th>动作</th><th>下次负荷</th><th>目标次数</th><th>组数</th><th>进阶策略</th></tr></thead><tbody id="rvRx"></tbody></table></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h2>近 7 天各肌群累计组数</h2></div>
+      <div id="rvWeek"></div>
+    </div>
+  </div>
+
+  <!-- VIEW 4: HISTORY -->
+  <div class="view hide" id="v-hist">
+    <div class="card">
+      <div class="ch"><h2>训练历史 <span class="tag" id="hCount">0 次</span></h2>
+        <div class="row">
+          <button class="btn ghost xs" id="selAll">全选</button>
+          <button class="btn ghost xs" id="selNone">取消</button>
+          <button class="btn danger xs" id="bulkDel">删除所选</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f2"><input id="hQ" placeholder="搜索动作 / 备注 / 日期..."></div>
+        <div class="f1"><select id="hPart"><option value="">全部部位</option><option>胸</option><option>腿</option><option>肩</option><option>背</option></select></div>
+        <div class="f1"><select id="hSort">
+          <option value="date-desc">日期最新 ↓</option><option value="date-asc">日期最早 ↑</option>
+          <option value="grade">按评级</option><option value="rate">按有效率 ↓</option></select></div>
+      </div>
+      <div class="row" style="margin-top:8px;align-items:center">
+        <div class="pills" id="viewChips"></div>
+        <button class="btn ghost xs" id="saveView">+ 保存筛选</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px"><div class="slist" id="hList"></div></div>
+    <div class="grid g2" style="margin-top:12px">
+      <div class="card">
+        <div class="ch"><h2>主项 1RM 力量曲线 <span class="tag">点击图例开关</span></h2></div>
+        <div class="chart" id="strChart"></div><div class="legend" id="strLegend"></div>
+      </div>
+      <div class="card">
+        <div class="ch"><h2>近 30 天出勤</h2></div>
+        <div class="grid g4" id="attNums"></div><div class="dots" id="attDots"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 5: BODY -->
+  <div class="view hide" id="v-body">
+    <div class="card accent"><div class="ch"><h2>健体比例与代谢指标</h2></div><div class="grid g4" id="bNums"></div>
+      <div class="note cy" id="adonisNote"></div></div>
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h2>身体档案</h2><button class="btn cool sm" id="bSave">保存并更新目标</button></div>
+      <div class="kv">
+        <div><label>身高 cm</label><input type="number" id="pH" inputmode="decimal"></div>
+        <div><label>体重 kg</label><input type="number" id="pW" inputmode="decimal" step="0.1"></div>
+        <div><label>体脂 % (校准值)</label><input type="number" id="pBF" inputmode="decimal" step="0.1"></div>
+        <div><label>年龄</label><input type="number" id="pA" inputmode="numeric"></div>
+        <div><label>肩围 cm</label><input type="number" id="pSH" inputmode="decimal" step="0.5"></div>
+        <div><label>腰围 cm (核心标尺)</label><input type="number" id="pWA" inputmode="decimal" step="0.5"></div>
+        <div><label>胸围 cm</label><input type="number" id="pCH" inputmode="decimal" step="0.5"></div>
+        <div><label>臂围 cm</label><input type="number" id="pAR" inputmode="decimal" step="0.5"></div>
+        <div><label>大腿围 cm</label><input type="number" id="pTH" inputmode="decimal" step="0.5"></div>
+        <div><label>每周训练次数</label><input type="number" id="pFQ" inputmode="decimal" step="0.1"></div>
+        <div><label>蛋白粉浓度 %</label><input type="number" id="pWP" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h2>围度追踪台账 <span class="tag">每 2 周晨起空腹记一次</span></h2><button class="btn sm" id="mAdd">+ 记录当前档案围度</button></div>
+      <div class="tw"><table><thead><tr><th>日期</th><th>体重</th><th>体脂</th><th>肩围</th><th>腰围</th><th>臂围</th><th>胸围</th><th>Adonis</th><th></th></tr></thead><tbody id="mBody"></tbody></table></div>
+      <div class="note li" id="goalNote"></div>
+    </div>
+    <div class="card" style="margin-top:12px"><div class="ch"><h2>动作 1RM 基准库 <span class="tag">留空则自动取历史最高</span></h2></div>
+      <div class="kv" id="benchList"></div></div>
+  </div>
+
+  <!-- VIEW 6: DATA & CLOUD SYNC -->
+  <div class="view hide" id="v-data">
+    <div class="card accent">
+      <div class="ch">
+        <h2>☁️ 手机 ⇄ 电脑 AI 实时云端双向同步 <span class="tag" id="cStatusTag">未连接</span></h2>
+        <div class="row">
+          <button class="btn cool sm" id="cPullBtn">↓ 从云端拉取</button>
+          <button class="btn ghost sm" id="cPushBtn">↑ 推送到云端</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f1">
+          <label>云端服务商（均免费）</label>
+          <select id="cProv">
+            <option value="gist">GitHub Gist（推荐·永久免费稳定）</option>
+            <option value="jsonbin">JSONBin.io（免GitHub·注册即用）</option>
+          </select>
+        </div>
+        <div class="f2">
+          <label>访问密钥 Token / API Key</label>
+          <input type="password" id="cToken" placeholder="填入 GitHub Token (勾 gist 权限) 或 JSONBin X-Master-Key">
+        </div>
+        <div class="f1">
+          <label>云端仓库 ID（自动生成）</label>
+          <input id="cId" placeholder="首次留空，点右侧自动创建">
+        </div>
+        <div class="fa">
+          <button class="btn cool" id="cInitBtn">⚡ 一键连接 / 创建云库</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px;align-items:center">
+        <div class="f2">
+          <input id="cBindCode" placeholder="手机端快捷绑定：在此粘贴 #cloud=... 绑定码点右侧即可免输配置">
+        </div>
+        <div class="fa"><button class="btn ghost sm" id="cApplyCode">用绑定码一键连接</button></div>
+        <div class="fa"><button class="btn ghost sm" id="cCopyCode">📱 复制手机绑定码</button></div>
+      </div>
+      <div class="note cy" id="cNote">连接后：你在健身房用手机每记完一组或保存，后台 1 秒自动同步到云端；回家对 AI 说“看下今天的训练”，AI 自动拉取云端数据并将调整后的下次处方推回你手机！</div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h2>一键生成教练复盘包（无云端时的备用方案）</h2>
+        <div class="row">
+          <button class="btn cool sm" id="packCopy">复制文本包</button>
+          <button class="btn ghost sm" id="packDl">下载 .txt</button>
+        </div>
+      </div>
+      <textarea id="packArea" readonly style="min-height:140px"></textarea>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h2>本机存储与 JSON 备份</h2></div>
+      <div class="grid g4" id="stNums"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn sm" id="expDl">下载备份 .json</button>
+        <button class="btn ghost sm" id="expCopy">复制 JSON</button>
+        <button class="btn ghost sm" id="impPick">从文件恢复</button>
+        <input type="file" id="impFile" accept=".json,application/json" class="hide">
+        <button class="btn danger sm" id="resetAll" style="margin-left:auto">重置全部数据</button>
+      </div>
+      <div style="margin-top:10px"><label>粘贴 JSON 恢复：</label>
+        <div class="row"><div class="f2"><textarea id="impArea" style="min-height:50px" placeholder='粘贴 {"profile":...}'></textarea></div>
+          <div class="fa"><button class="btn cool sm" id="impPaste">导入</button></div></div>
+      </div>
+      <div class="note" id="stNote" style="display:none"></div>
+      <div class="note" id="bakNote"></div>
+      <div class="sect-t">最近自动快照（最多保留 6 份）</div>
+      <div id="bakList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Drawer for editing historical session -->
+<div class="scrim" id="scrim"></div>
+<div class="drawer" id="drawer">
+  <div class="dh"><b id="dwTitle">训练明细</b><button class="btn ghost sm" id="dwClose">关闭</button></div>
+  <div class="db" id="dwBody"></div>
+  <div class="df"><button class="btn cool sm" id="dwSave">保存修改</button>
+    <button class="btn ghost sm" id="dwDup">复制为今日训练</button>
+    <button class="btn danger sm" id="dwDel">删除</button></div>
+</div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* SECTION: constants & presets */
+var KEY='trainstand_v1', BAKPRE='trainstand_bak_', OLDKEY='fittrack_v1';
+var MUSCLES=['胸','背','肩前束','肩中束','肩后束','二头','三头','股四','腘绳/臀','内收肌','小腿','竖脊肌','腹/核心'];
+var CAP_LO=8, CAP_HI=12, MIN_LOAD=30, EFF_LOAD=60;
+var NEXT_PART={'胸':'腿','腿':'肩','肩':'背','背':'胸'};
+var HUES=['#C8F24E','#35D6E8','#FF6B35','#FF4D8D','#9B7BFF','#FFB020','#3DDC84','#B3A695'];
+
+var EXMAP={
+'平板杠铃卧推':'胸','上斜哑铃卧推':'胸','上斜哑铃卧推30°':'胸','上斜杠铃卧推':'胸','上斜史密斯杠铃卧推':'胸',
+'低位绳索夹胸':'胸','绳索夹胸':'胸','器械坐姿飞鸟':'胸','哑铃飞鸟':'胸','双杠臂屈伸':'胸','平板哑铃卧推':'胸',
+'负重引体':'背','引体向上':'背','自重引体':'背','坐姿对握划船':'背','坐姿绳索对握划船':'背',
+'高位下拉':'背','单臂器械划船':'背','直臂下压':'背','杠铃划船':'背',
+'史密斯推举':'肩前束','坐姿史密斯推举':'肩前束','坐姿哑铃推举':'肩前束','坐姿器械推举':'肩前束',
+'哑铃侧平举':'肩中束','坐姿哑铃侧平举':'肩中束','绳索侧平举':'肩中束','单臂绳索侧平举':'肩中束','斜站姿哑铃侧平举':'肩中束',
+'反向飞鸟':'肩后束','器械反向飞鸟':'肩后束','胸托反向飞鸟':'肩后束','绳索面拉':'肩后束','仰卧绳索面拉':'肩后束','坐姿绳索面拉':'肩后束',
+'坐姿哑铃弯举':'二头','坐姿二头弯举':'二头','杠铃弯举':'二头',
+'绳索三头下压':'三头','过顶臂屈伸':'三头','绳索过头臂屈伸':'三头',
+'自由杠铃深蹲':'股四','哈克深蹲':'股四','腿屈伸':'股四','保加利亚深蹲':'股四','腿举':'股四',
+'哑铃RDL':'腘绳/臀','杠铃RDL':'腘绳/臀','腿弯举':'腘绳/臀','器械腿弯举':'腘绳/臀',
+'内收肌':'内收肌','站姿提踵':'小腿','山羊挺身':'竖脊肌',
+'反向卷腹':'腹/核心','反向山羊挺':'腹/核心','悬垂举腿':'腹/核心','绳索跪姿卷腹':'腹/核心','侧平板支撑':'腹/核心'};
+
+var PAIR={'上斜哑铃卧推30°':1,'上斜哑铃卧推':1,'平板哑铃卧推':1,'哑铃卧推':1,'坐姿哑铃推举':1,
+'哑铃RDL':1,'保加利亚深蹲':1,'站姿提踵':1};
+var BWADD={'引体向上':1,'负重引体':1,'自重引体':1,'双杠臂屈伸':1};
+var BWONLY={'反向卷腹':1,'反向山羊挺':1,'悬垂举腿':1,'屈膝举腿':1,'侧平板支撑':1,'俯卧撑':1};
+
+var BENCH0={'平板杠铃卧推':93.3,'上斜哑铃卧推':62.4,'上斜哑铃卧推30°':60.1,'上斜史密斯杠铃卧推':91,
+'史密斯推举':72,'坐姿史密斯推举':72,'坐姿对握划船':57.4,'坐姿绳索对握划船':60.2,'高位下拉':77,'哑铃侧平举':11.5,
+'坐姿哑铃侧平举':11.5,'绳索三头下压':19.8,'坐姿哑铃弯举':11.2,'坐姿二头弯举':11.2,'自由杠铃深蹲':120,'哈克深蹲':146.7,
+'哑铃RDL':78.4,'杠铃RDL':85,'器械反向飞鸟':48,'绳索面拉':20.8,'引体向上':88,'负重引体':88};
+
+/* Standard 4-Split Presets (matching 02-训练处方.md) */
+var PRESETS={
+  '胸':[
+    ['上斜史密斯杠铃卧推','胸',65,10,1,4],
+    ['平板杠铃卧推','胸',75,8,1,3],
+    ['低位绳索夹胸','胸',7.5,13,1,3],
+    ['绳索三头下压','三头',12.5,13,1,2],
+    ['绳索过头臂屈伸','三头',5,12,1,2],
+    ['坐姿哑铃侧平举','肩中束',8,12,1,3],
+    ['反向山羊挺','腹/核心',0,15,1,3]
+  ],
+  '腿':[
+    ['自由杠铃深蹲','股四',90,8,1,4],
+    ['哑铃RDL','腘绳/臀',28,12,1,4],
+    ['哈克深蹲','股四',105,10,1,3],
+    ['腿弯举','腘绳/臀',35,12,1,3],
+    ['站姿提踵','小腿',12,15,1,3],
+    ['悬垂举腿','腹/核心',0,12,1,3]
+  ],
+  '肩':[
+    ['史密斯推举','肩前束',55,8,1,4],
+    ['坐姿哑铃侧平举','肩中束',8,12,1,4],
+    ['器械反向飞鸟','肩后束',32,13,1,4],
+    ['斜站姿哑铃侧平举','肩中束',5,15,1,3],
+    ['坐姿哑铃弯举','二头',8,12,1,3],
+    ['绳索三头下压','三头',13.5,13,1,3]
+  ],
+  '背':[
+    ['负重引体','背',5,5,1,4],
+    ['坐姿绳索对握划船','背',43,12,1,4],
+    ['高位下拉','背',55,11,1,3],
+    ['器械反向飞鸟','肩后束',34.5,12,1,3],
+    ['绳索面拉','肩后束',15,15,1,3],
+    ['坐姿二头弯举','二头',8,12,1,3],
+    ['反向卷腹','腹/核心',0,18,1,3]
+  ]
+};
+
+var RX={
+'上斜史密斯杠铃卧推':[8,12,2.5],'上斜哑铃卧推30°':[8,12,2],'上斜哑铃卧推':[8,12,2],'上斜杠铃卧推':[8,12,2.5],
+'平板杠铃卧推':[6,8,2.5],'平板哑铃卧推':[8,10,2],'绳索夹胸':[12,15,2.5],'低位绳索夹胸':[12,15,2.5],
+'器械坐姿飞鸟':[12,15,2.5],'绳索三头下压':[12,15,2.5],'绳索过头臂屈伸':[10,15,2.5],'过顶臂屈伸':[10,15,2.5],
+'哑铃侧平举':[12,15,2],'坐姿哑铃侧平举':[12,15,2],'斜站姿哑铃侧平举':[15,18,2],
+'史密斯推举':[6,9,2.5],'坐姿史密斯推举':[6,9,2.5],'坐姿哑铃推举':[8,10,2],'坐姿器械推举':[8,10,2.5],
+'自由杠铃深蹲':[6,8,5],'哈克深蹲':[10,12,5],'哑铃RDL':[10,12,2],'杠铃RDL':[8,10,5],
+'坐姿对握划船':[10,12,2.5],'坐姿绳索对握划船':[10,12,2.5],'高位下拉':[10,12,2.5],
+'负重引体':[5,6,2.5],'引体向上':[5,6,2.5],'自重引体':[8,12,2.5],'单臂器械划船':[10,12,2.5],
+'坐姿哑铃弯举':[10,15,2],'坐姿二头弯举':[10,15,2],'腿弯举':[12,15,2.5],'器械腿弯举':[12,15,2.5],'腿屈伸':[12,15,2.5],
+'站姿提踵':[12,15,2.5],'保加利亚深蹲':[10,12,2],'内收肌':[12,15,2.5],
+'反向飞鸟':[12,15,2.5],'器械反向飞鸟':[12,15,2.5],'胸托反向飞鸟':[12,15,2.5],
+'仰卧绳索面拉':[15,20,2.5],'绳索面拉':[15,20,2.5],'坐姿绳索面拉':[15,20,2.5],
+'山羊挺身':[10,15,2.5],'直臂下压':[12,15,2.5],
+'反向卷腹':[15,20,0],'反向山羊挺':[15,20,0],'悬垂举腿':[12,15,0],'绳索跪姿卷腹':[12,15,2.5]};
+
+var PATTERN={'上斜史密斯杠铃卧推':'上斜推','上斜哑铃卧推30°':'上斜推','上斜哑铃卧推':'上斜推','上斜杠铃卧推':'上斜推',
+'平板杠铃卧推':'平推','平板哑铃卧推':'平推','哑铃卧推':'平推'};
+
+var QUICK=[
+  {n:'蛋白粉1勺(30g)',whey:1,p:0,c:2,f:1.5},
+  {n:'鸡蛋1个',p:6.5,c:.5,f:5},
+  {n:'瘦牛肉100g生',p:20,c:0,f:2.5},
+  {n:'鸡胸/鱼虾100g生',p:22,c:0,f:2},
+  {n:'高蛋白酸奶135g',p:13,c:6,f:2},
+  {n:'牛奶250ml',p:8,c:12,f:8},
+  {n:'熟米饭1碗(150g)',p:4,c:39,f:.5},
+  {n:'香蕉1根',p:1.3,c:23,f:.3}
+];
+
+var T={
+m:'<div class="m"><div class="k"></div><div class="v"></div><div class="n"></div></div>',
+item:'<div class="item"><div class="it"><b></b><span class="badge"></span></div><div class="id"></div></div>',
+itemBar:'<div class="item"><div class="it"><b></b><span class="badge"></span></div><div class="id"></div><div class="bar"><i></i><u class="lo"></u><u class="hi"></u></div></div>',
+drow:'<tr draggable="true"><td class="grip">⠿</td><td class="c2" style="font-weight:700"></td><td class="c3" style="color:var(--ink-2)"></td><td class="c4"><input type="number" step="0.5" class="in-sm row-w" inputmode="decimal"> <span class="w-unit" style="font-size:11px;color:var(--ink-3)"></span></td><td class="c5"><input type="number" class="in-sm row-r" inputmode="numeric"></td><td class="c6"><input type="number" class="in-sm row-rir" inputmode="numeric" placeholder="—"></td><td class="num c7" style="font-size:12px;color:var(--ink-2)"></td><td class="c9"><span class="badge"></span></td><td class="c10"><button class="btn ghost xs row-dup" title="复制这组">+1组</button> <button class="btn danger xs row-del">删</button></td></tr>',
+prow:'<tr><td class="c1" style="font-weight:700"></td><td class="c2"></td><td class="num c3"></td><td class="num c4"></td><td class="c5"><span class="badge"></span></td></tr>',
+scard:'<div class="scard"><input type="checkbox"><div class="sg"><span></span></div><div class="sb"><div class="l1"><b></b><span class="badge"></span></div><div class="l2"></div><div class="l3"></div></div></div>',
+mrow:'<tr><td class="c1"></td><td class="num c2"></td><td class="num c3"></td><td class="num c4"></td><td class="num c5"></td><td class="num c6"></td><td class="num c7"></td><td class="num c8"></td><td class="c9"><button class="btn danger xs">删</button></td></tr>',
+bfield:'<div><label></label><input type="number" inputmode="decimal" step="0.1"></div>',
+dset:'<div class="row" style="margin-bottom:8px"><div class="f2"><label></label><input class="e-ex"></div><div class="f1"><label>负荷</label><input type="number" step="0.5" class="e-w" inputmode="decimal"></div><div class="f1"><label>次</label><input type="number" class="e-r" inputmode="numeric"></div><div class="f1"><label>RIR</label><input type="number" class="e-rir" inputmode="numeric"></div><div class="fa"><button class="btn danger xs e-del">删</button></div></div>'
+};
+
+/* SECTION: utils */
+function n(v){var x=parseFloat(v);return isFinite(x)?x:0;}
+function fmt(x,d){if(!isFinite(x))return '—';return x.toFixed(d===undefined?1:d);}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function dshift(s,k){var d=new Date(s+'T00:00:00');d.setDate(d.getDate()+k);
+return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function el(id){return document.getElementById(id);}
+function clear(e){while(e&&e.firstChild)e.removeChild(e.firstChild);}
+function isPair(ex){return !!PAIR[ex];}
+function isBW(ex){return !!BWADD[ex];}
+function epley(w,r){return w*(1+r/30);}
+function toast(msg,kind,undo){
+if(undo&&typeof undo==='object'&&typeof undo.undo==='function')undo=undo.undo;
+if(typeof undo!=='function')undo=null;
+var host=el('toasts'),d=document.createElement('div');
+d.className='toast'+(kind?(' '+kind):'');
+var s=document.createElement('span');s.textContent=msg;d.appendChild(s);
+if(undo){var b=document.createElement('button');b.className='btn cool xs';b.textContent='撤销';
+b.addEventListener('click',function(){try{undo();}catch(e){}if(d.parentNode)d.remove();});d.appendChild(b);}
+host.appendChild(d);
+while(host.children.length>3)host.removeChild(host.firstChild);
+setTimeout(function(){if(d.parentNode)d.remove();},undo?6000:2000);}
+
+/* SECTION: seed */
+function seed(){
+function S(date,part,dur,note,rows,restored){
+return{id:uid(),date:date,part:part,dur:dur,note:note||'',restored:!!restored,
+sets:rows.map(function(r){return{id:uid(),ex:r[0],mus:r[1],w:r[2],r:r[3],rir:r[4]};})};}
+return[
+S('2026-11-06','肩',103,'递减组过多，中束24组',[
+['史密斯推举','肩前束',50,10,2],['史密斯推举','肩前束',50,10,2],['史密斯推举','肩前束',45,10,4],
+['史密斯推举','肩前束',45,10,4],['史密斯推举','肩前束',40,10,6],['史密斯推举','肩前束',40,10,6],['史密斯推举','肩前束',40,10,6],
+['哑铃侧平举','肩中束',8,12,0],['哑铃侧平举','肩中束',4,10,0],['哑铃侧平举','肩中束',2,8,0],
+['器械坐姿飞鸟','胸',32,12,null],['仰卧绳索面拉','肩后束',10,15,null]]),
+S('2026-11-09','背',null,'山羊挺排在末段',[
+['负重引体','背',5,5,0],['负重引体','背',5,4,0],['负重引体','背',5,3,0],
+['坐姿对握划船','背',36,12,3],['坐姿对握划船','背',41,12,1],['坐姿对握划船','背',41,11,0],
+['坐姿对握划船','背',36,12,3],['坐姿对握划船','背',36,12,3],
+['高位下拉','背',55,12,1],['高位下拉','背',55,11,0],['高位下拉','背',50,12,3],
+['单臂器械划船','背',20,12,1],['山羊挺身','竖脊肌',10,14,null]]),
+S('2026-11-10','腿',90,'下背练后超级酸',[
+['自由杠铃深蹲','股四',60,12,13],['自由杠铃深蹲','股四',90,10,2],['自由杠铃深蹲','股四',60,12,13],
+['哈克深蹲','股四',100,10,2],['哈克深蹲','股四',100,10,1],['哈克深蹲','股四',100,10,0],
+['哈克深蹲','股四',80,10,0],['哈克深蹲','股四',50,10,0],
+['哑铃RDL','腘绳/臀',28,10,2],['哑铃RDL','腘绳/臀',28,10,1],['哑铃RDL','腘绳/臀',28,10,0],
+['哑铃RDL','腘绳/臀',22,10,0],['哑铃RDL','腘绳/臀',18,10,0],
+['内收肌','内收肌',43,10,1],['腿屈伸','股四',48,12,1],['腿屈伸','股四',48,12,0],
+['腿屈伸','股四',43,12,0],['腿屈伸','股四',36,10,0],['腿屈伸','股四',28,10,0],['站姿提踵','小腿',10,15,1]]),
+S('2026-11-11','肩',90,'左肩单臂绳索侧平举弹响，改哑铃后消失',[
+['史密斯推举','肩前束',60,6,0],['史密斯推举','肩前束',50,10,2],['史密斯推举','肩前束',50,10,2],['史密斯推举','肩前束',50,10,2],
+['坐姿哑铃侧平举','肩中束',8,12,0],['坐姿哑铃侧平举','肩中束',4,10,0],['坐姿哑铃侧平举','肩中束',8,11,0],
+['坐姿哑铃侧平举','肩中束',4,8,0],['坐姿哑铃侧平举','肩中束',6,12,0],['坐姿哑铃侧平举','肩中束',2,8,0],
+['反向飞鸟','肩后束',0,12,0],['仰卧绳索面拉','肩后束',10,18,0],['坐姿哑铃弯举','二头',8,12,0],
+['绳索三头下压','三头',13.5,14,0],['绳索三头下压','三头',13.5,12,0],['绳索三头下压','三头',13.5,10,0],
+['斜站姿哑铃侧平举','肩中束',5,18,0]]),
+S('2026-11-13','胸',66,'S级，零废组；上斜史密斯65kg×12建基准',[
+['上斜史密斯杠铃卧推','胸',60,12,3],['上斜史密斯杠铃卧推','胸',65,12,0],['上斜史密斯杠铃卧推','胸',60,12,1],['上斜史密斯杠铃卧推','胸',60,10,1],
+['绳索夹胸','胸',7.5,13,1],['绳索夹胸','胸',7.5,11,0],['绳索夹胸','胸',5,13,1],['绳索夹胸','胸',7.5,10,0],
+['上斜哑铃卧推30°','胸',22,10,1],['上斜哑铃卧推30°','胸',22,11,1],['上斜哑铃卧推30°','胸',22,11,0],
+['绳索三头下压','三头',12.5,13,0],['绳索三头下压','三头',12.5,11,0],['绳索三头下压','三头',12.5,11,0],
+['绳索过头臂屈伸','三头',5,10,1],['绳索过头臂屈伸','三头',5,12,0],['绳索过头臂屈伸','三头',5,11,0],
+['哑铃侧平举','肩中束',8,12,1],['哑铃侧平举','肩中束',8,12,0],['哑铃侧平举','肩中束',8,11,0],['哑铃侧平举','肩中束',8,8,0],
+['反向山羊挺','腹/核心',0,15,1],['反向山羊挺','腹/核心',0,15,1],['反向山羊挺','腹/核心',0,15,0]]),
+S('2026-11-14','背',87,'A级 有效率88% 零废组。后束反向飞鸟32kg、面拉12.5kg建基准',[
+['引体向上','背',0,12,0],['引体向上','背',0,10,0],['引体向上','背',0,9,1],['引体向上','背',0,8,3],
+['坐姿绳索对握划船','背',43,12,0],['坐姿绳索对握划船','背',43,12,1],['坐姿绳索对握划船','背',43,11,1],['坐姿绳索对握划船','背',43,10,3],
+['高位下拉','背',55,11,1],['高位下拉','背',55,11,1],['高位下拉','背',55,10,2],['高位下拉','背',55,10,2],
+['器械反向飞鸟','肩后束',32,15,0],['器械反向飞鸟','肩后束',32,13,1],['器械反向飞鸟','肩后束',32,12,3],
+['绳索面拉','肩后束',12.5,20,0],['绳索面拉','肩后束',12.5,18,1],['绳索面拉','肩后束',12.5,15,1],
+['坐姿二头弯举','二头',8,12,0],['坐姿二头弯举','二头',8,11,1],['坐姿二头弯举','二头',8,10,1],
+['反向卷腹','腹/核心',0,20,1],['反向卷腹','腹/核心',0,18,1],['反向卷腹','腹/核心',0,15,0]],false)
+];}
+
+function defState(){return{
+v:2,
+updatedAt:Date.now(),
+profile:{h:161,w:66.4,bf:19.5,age:32,sh:118,wa:76,ch:95,ar:34,th:55,freq:5.6,wheyPct:80},
+aiAdvice:{
+  date:'2026-11-14',
+  title:'🤖 AI 动态教练批注 · 下次顺延「腿日（后链补强）」',
+  text:'11-13 胸日 (S级) 与 11-14 背日 (A级) 连续实现零废组！按『胸→腿→肩→背→休』循环，下次为【腿日】：已砍除旧版 18 段疲劳递减与三合组，保留 20 组高张力正式组（深蹲 90kg×8×4 + RDL 28kg/只×12×4）。点下方「⚡ 载入标准处方」即可直接开练。'
+},
+customPresets:null,
+bench:Object.assign({},BENCH0),
+sessions:seed(),
+food:{'2026-11-10':{p:183,c:220,f:65,w:8,s:7},'2026-11-13':{p:155,c:230,f:65,w:10,s:7},
+'2026-11-14':{p:63.6,c:25,f:8,w:4,s:7}},
+measures:[
+{date:'2026-10-17',w:64.5,bf:24.2,sh:118,wa:76,ar:34,ch:95,th:55},
+{date:'2026-11-10',w:66.4,bf:24.4,sh:118,wa:76,ar:34,ch:95,th:55}],
+draft:{date:today(),part:'腿',dur:'',note:'',sets:[]},
+views:[{name:'胸日',part:'胸',sort:'date-desc',q:''},{name:'腿日',part:'腿',sort:'date-desc',q:''},{name:'肩日',part:'肩',sort:'date-desc',q:''},{name:'背日',part:'背',sort:'date-desc',q:''}],
+hSel:[],hidden:{}
+};}
+
+/* SECTION: storage & cloud sync */
+var CLOUDKEY='trainstand_cloud_cfg', CLOUDFILE='trainstand_cloud_v1.json';
+var S=loadState(), storageOK=true, cloudState='idle', pushTimer=null;
+function loadCloudCfg(){
+  try{return JSON.parse(localStorage.getItem(CLOUDKEY)||'{}');}catch(e){return {};}
+}
+function saveCloudCfg(c){
+  try{localStorage.setItem(CLOUDKEY,JSON.stringify(c));}catch(e){}
+  renderCloudStatus();
+}
+function loadState(){
+var d=defState();
+try{
+ var raw=localStorage.getItem(KEY);
+ if(!raw){var old=localStorage.getItem(OLDKEY);
+  if(old){try{var o=JSON.parse(old);
+   if(o.profile)d.profile=Object.assign(d.profile,o.profile);
+   if(o.food)d.food=Object.assign(d.food,o.food);
+   if(o.bench)d.bench=Object.assign(d.bench,o.bench);
+   if(o.sessions&&o.sessions.length){d.sessions=o.sessions.map(function(s){
+    return{id:s.id||uid(),date:s.date,part:s.part,dur:s.dur,note:s.note||'',sets:(s.sets||[]).map(function(t){
+     var w=n(t.w);if(BWADD[t.ex]&&w>=40)w=Math.max(0,Math.round((w-n(d.profile.w))*10)/10);
+     return{id:uid(),ex:t.ex,mus:t.mus||EXMAP[t.ex]||'未分类',w:w,r:n(t.r),rir:(t.rir===undefined?null:t.rir)};})};});
+   var have={};d.sessions.forEach(function(s){have[s.date+'|'+s.part]=1;});
+   seed().forEach(function(s){if(!have[s.date+'|'+s.part])d.sessions.push(s);});
+   d.sessions.sort(function(a,b){return a.date<b.date?-1:1;});}
+   localStorage.setItem(KEY,JSON.stringify(d));return d;}catch(e){}}
+  localStorage.setItem(KEY,JSON.stringify(d));return d;}
+ var o=JSON.parse(raw);
+ d.updatedAt=o.updatedAt||Date.now();
+ d.profile=Object.assign(d.profile,o.profile||{});
+ d.aiAdvice=o.aiAdvice||d.aiAdvice;
+ d.customPresets=o.customPresets||null;
+ d.bench=Object.assign(d.bench,o.bench||{});
+ d.sessions=(o.sessions||d.sessions);
+ d.food=o.food||d.food;d.measures=o.measures||d.measures;
+ d.draft=o.draft||d.draft;d.views=o.views||d.views;d.hidden=o.hidden||{};
+ d.sessions.forEach(function(s){if(!s.id)s.id=uid();(s.sets||[]).forEach(function(t){if(!t.id)t.id=uid();});});
+ return d;
+}catch(e){storageOK=false;return d;}}
+
+function persist(skipCloud){
+S.updatedAt=Date.now();
+try{
+ localStorage.setItem(KEY,JSON.stringify(S));
+ var ks=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf(BAKPRE)===0)ks.push(k);}
+ ks.sort();while(ks.length>=6){localStorage.removeItem(ks.shift());}
+ localStorage.setItem(BAKPRE+Date.now(),JSON.stringify(S));
+ storageOK=true;
+}catch(e){storageOK=false;toast('保存失败：浏览器存储不可用','bad');}
+renderStore();
+if(!skipCloud){
+  var cc=loadCloudCfg();
+  if(cc.token&&cc.id){
+    clearTimeout(pushTimer);
+    cloudState='syncing';renderCloudStatus();
+    pushTimer=setTimeout(function(){cloudPush(true);},1000);
+  }
+}}
+
+function renderCloudStatus(){
+  var cc=loadCloudCfg(), chip=el('cloudChip'), txt=el('cloudTxt'), tag=el('cStatusTag');
+  if(!chip||!txt)return;
+  chip.classList.remove('ok','warn','bad');
+  if(!cc.token||!cc.id){
+    txt.textContent='☁️ 未绑云端';
+    if(tag)tag.textContent='未连接';
+    return;
+  }
+  if(cloudState==='syncing'){
+    chip.classList.add('warn');txt.textContent='☁️ 同步中...';
+    if(tag)tag.textContent='同步中...';
+  }else if(cloudState==='err'){
+    chip.classList.add('bad');txt.textContent='☁️ 同步失败';
+    if(tag)tag.textContent='连接异常';
+  }else{
+    chip.classList.add('ok');
+    var dt=cc.lastSync?new Date(cc.lastSync).toTimeString().slice(0,5):'已就绪';
+    txt.textContent='☁️ 已同步 '+dt;
+    if(tag)tag.textContent='已连接 ('+cc.provider.toUpperCase()+') · '+dt;
+  }
+}
+
+function cloudPush(silent){
+  var cc=loadCloudCfg();
+  if(!cc.token||!cc.id){if(!silent)toast('请先填写 Token 并连接云端','bad');return;}
+  cloudState='syncing';renderCloudStatus();
+  var url=cc.provider==='jsonbin'?('https://api.jsonbin.io/v3/b/'+cc.id):('https://api.github.com/gists/'+cc.id);
+  var method=cc.provider==='jsonbin'?'PUT':'PATCH';
+  var headers={'Content-Type':'application/json'};
+  if(cc.provider==='jsonbin')headers['X-Master-Key']=cc.token;
+  else{headers['Authorization']='token '+cc.token;headers['Accept']='application/vnd.github+json';}
+  var body=cc.provider==='jsonbin'?JSON.stringify(S):JSON.stringify({files:{'trainstand_cloud_v1.json':{content:JSON.stringify(S,null,2)}}});
+  fetch(url,{method:method,headers:headers,body:body}).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  }).then(function(){
+    cloudState='ok';cc.lastSync=Date.now();saveCloudCfg(cc);
+    if(!silent)toast('☁️ 已推送至云端，电脑与AI可实时读取','ok');
+  }).catch(function(e){
+    cloudState='err';renderCloudStatus();
+    if(!silent)toast('云端推送失败: '+e.message,'bad');
+  });
+}
+
+function cloudPull(silent){
+  var cc=loadCloudCfg();
+  if(!cc.token||!cc.id){if(!silent)toast('请先连接云端','bad');return;}
+  cloudState='syncing';renderCloudStatus();
+  var url=cc.provider==='jsonbin'?('https://api.jsonbin.io/v3/b/'+cc.id+'/latest'):('https://api.github.com/gists/'+cc.id);
+  var headers={};
+  if(cc.provider==='jsonbin')headers['X-Master-Key']=cc.token;
+  else{headers['Authorization']='token '+cc.token;headers['Accept']='application/vnd.github+json';}
+  fetch(url,{headers:headers,cache:'no-store'}).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  }).then(function(res){
+    var remote=null;
+    if(cc.provider==='jsonbin')remote=res.record||res;
+    else{
+      var files=res.files||{};
+      var fobj=files[CLOUDFILE]||files[Object.keys(files)[0]];
+      if(fobj&&fobj.content)remote=JSON.parse(fobj.content);
+    }
+    if(!remote||(!remote.sessions&&!remote.profile))throw new Error('云端无有效数据');
+    if(!silent || (remote.updatedAt && remote.updatedAt > (S.updatedAt||0)) || (remote.sessions && remote.sessions.length > S.sessions.length) || JSON.stringify(remote.aiAdvice)!==JSON.stringify(S.aiAdvice)){
+      S.updatedAt=remote.updatedAt||Date.now();
+      if(remote.profile)S.profile=Object.assign(S.profile,remote.profile);
+      if(remote.aiAdvice)S.aiAdvice=remote.aiAdvice;
+      if(remote.customPresets)S.customPresets=remote.customPresets;
+      if(remote.bench)S.bench=Object.assign(S.bench,remote.bench);
+      if(remote.food)S.food=Object.assign(S.food,remote.food);
+      if(remote.measures)S.measures=remote.measures;
+      if(remote.sessions&&remote.sessions.length)S.sessions=remote.sessions;
+      persist(true);renderAll();
+      toast('☁️ 已从云端同步最新数据与 AI 处方','ok');
+    }else if(!silent){
+      toast('☁️ 当前已是最新数据','ok');
+    }
+    cloudState='ok';cc.lastSync=Date.now();saveCloudCfg(cc);
+  }).catch(function(e){
+    cloudState='err';renderCloudStatus();
+    if(!silent)toast('云端拉取失败: '+e.message,'bad');
+  });
+}
+
+function cloudInit(){
+  var prov=el('cProv').value, token=el('cToken').value.trim(), cid=el('cId').value.trim();
+  if(!token){toast('请填写访问密钥 Token','bad');return;}
+  if(cid){
+    saveCloudCfg({provider:prov,token:token,id:cid,lastSync:Date.now()});
+    cloudPull(false);
+    return;
+  }
+  cloudState='syncing';renderCloudStatus();
+  var url=prov==='jsonbin'?'https://api.jsonbin.io/v3/b':'https://api.github.com/gists';
+  var headers={'Content-Type':'application/json'};
+  if(prov==='jsonbin'){headers['X-Master-Key']=token;headers['X-Bin-Name']='trainstand_cloud_v1';}
+  else{headers['Authorization']='token '+token;headers['Accept']='application/vnd.github+json';}
+  var body=prov==='jsonbin'?JSON.stringify(S):JSON.stringify({
+    description:'训练台 · 手机与AI实时同步数据库',
+    public:false,
+    files:{'trainstand_cloud_v1.json':{content:JSON.stringify(S,null,2)}}
+  });
+  fetch(url,{method:'POST',headers:headers,body:body}).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  }).then(function(res){
+    var newId=prov==='jsonbin'?(res.metadata&&res.metadata.id):res.id;
+    if(!newId)throw new Error('未返回仓库ID');
+    el('cId').value=newId;
+    var cc={provider:prov,token:token,id:newId,lastSync:Date.now()};
+    saveCloudCfg(cc);
+    cloudState='ok';renderCloudStatus();renderData();
+    toast('🎉 云端仓库创建成功！ID: '+newId,'ok');
+  }).catch(function(e){
+    cloudState='err';renderCloudStatus();
+    toast('初始化失败，请检查 Token 权限: '+e.message,'bad');
+  });
+}
+
+function applyBindStr(str){
+  var m=str.match(/(?:^|#)?cloud=(gist|jsonbin):([^:]+):([a-zA-Z0-9_-]+)/);
+  if(!m){toast('绑定码格式不正确，应为 #cloud=gist:token:id','bad');return false;}
+  saveCloudCfg({provider:m[1],token:m[2],id:m[3],lastSync:0});
+  toast('☁️ 已绑定云端仓库，正在同步...','ok');
+  cloudPull(false);
+  return true;
+}
+
+function backups(){var out=[];try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);
+if(k&&k.indexOf(BAKPRE)===0){var v=localStorage.getItem(k);var o=null;try{o=JSON.parse(v);}catch(e){}
+out.push({key:k,ts:parseInt(k.slice(BAKPRE.length),10),bytes:v.length,
+n:(o&&o.sessions)?o.sessions.length:0,last:(o&&o.sessions&&o.sessions.length)?o.sessions[o.sessions.length-1].date:'—'});}}}catch(e){}
+out.sort(function(a,b){return b.ts-a.ts;});return out;}
+
+/* SECTION: compute */
+function loadOf(t){if(BWONLY[t.ex])return 0;if(BWADD[t.ex])return n(S.profile.w)+n(t.w);
+return n(t.w)*(isPair(t.ex)?2:1);}
+function wLabel(ex,w){if(BWONLY[ex])return '自重';
+if(BWADD[ex])return n(w)>0?('配重+'+fmt(w)):'自重';
+if(!n(w))return '自重';return fmt(w)+(isPair(ex)?'/只':'');}
+function wUnit(ex){if(BWONLY[ex])return '自重';if(BWADD[ex])return 'kg配重';if(isPair(ex))return 'kg/只';return 'kg';}
+function best1RM(ex){var b=n(S.bench[ex]);if(b>0)return b;var mx=0;
+S.sessions.forEach(function(s){(s.sets||[]).forEach(function(t){if(t.ex===ex&&loadOf(t)>0){var v=epley(loadOf(t),t.r);if(v>mx)mx=v;}});});
+(S.draft.sets||[]).forEach(function(t){if(t.ex===ex&&loadOf(t)>0){var v=epley(loadOf(t),t.r);if(v>mx)mx=v;}});
+return mx;}
+function judge(t){
+var L=loadOf(t),rir=(t.rir===null||t.rir===undefined||t.rir==='')?null:n(t.rir);
+if(L<=0){if(rir===null)return{cls:'b-na',txt:'未记RIR',load:0,one:0};
+ return rir<=2?{cls:'b-ok',txt:'有效',load:0,one:0}:rir<=3?{cls:'b-mid',txt:'边际',load:0,one:0}:{cls:'b-bad',txt:'无效',load:0,one:0};}
+var one=best1RM(t.ex);if(!one)return{cls:'b-ok',txt:'建基准',load:0,one:epley(L,n(t.r))};
+var pct=L/one*100;
+if(pct<MIN_LOAD)return{cls:'b-bad',txt:'无效(<30%)',load:pct,one:one};
+if(rir!==null&&rir>=4)return{cls:'b-bad',txt:'无效(RIR≥4)',load:pct,one:one};
+if(pct>=MIN_LOAD&&(rir===null||rir<=2))return{cls:'b-ok',txt:'有效',load:pct,one:one};
+return{cls:'b-mid',txt:'边际',load:pct,one:one};}
+function volMap(sets){var m={};(sets||[]).forEach(function(t){var k=t.mus||'未分类';m[k]=(m[k]||0)+1;});return m;}
+function weekBand(m){if(['胸','背','股四','腘绳/臀','肩中束'].indexOf(m)>=0)return[10,18];
+if(['肩前束','肩后束','二头','三头'].indexOf(m)>=0)return[8,15];return[6,12];}
+function rxOf(ex,mus){if(RX[ex])return RX[ex];
+return ['胸','背','股四','腘绳/臀','肩前束'].indexOf(mus)>=0?[8,12,2.5]:[12,15,2.5];}
+
+function analyze(s){
+var sets=s.sets||[],eff=0,mid=0,bad=0,na=0,far=0;
+sets.forEach(function(t){var j=judge(t);
+if(j.txt==='有效')eff++;else if(j.txt==='边际')mid++;else if(j.txt==='无效')bad++;else na++;
+if(t.rir!==null&&t.rir!==undefined&&n(t.rir)>2)far++;});
+var vm=volMap(sets),over=[];Object.keys(vm).forEach(function(k){if(vm[k]>CAP_HI)over.push({m:k,c:vm[k]});});
+var byEx={},order=[];sets.forEach(function(t){if(!byEx[t.ex]){byEx[t.ex]=[];order.push(t.ex);}byEx[t.ex].push(t);});
+var low=0,pat={};
+order.forEach(function(ex){var arr=byEx[ex],mx=0;arr.forEach(function(t){var L=loadOf(t);if(L>mx)mx=L;});
+arr.forEach(function(t,i){if(i>0&&mx>0&&loadOf(t)/mx<=.5)low++;});
+var p=PATTERN[ex];if(p)pat[p]=(pat[p]||0)+arr.length;});
+var dup=[];Object.keys(pat).forEach(function(p){if(pat[p]>=6)dup.push({p:p,c:pat[p]});});
+var rate=sets.length?eff/sets.length*100:0,g='C';
+if(rate>=85&&!over.length&&!bad)g='S';else if(rate>=70&&over.length<=1)g='A';else if(rate>=50)g='B';
+return{sets:sets,eff:eff,mid:mid,bad:bad,na:na,far:far,rate:rate,vm:vm,over:over,byEx:byEx,order:order,low:low,dup:dup,grade:g,pat:pat};}
+
+function buildRx(s,a){
+var out=[];
+a.order.forEach(function(ex){
+var arr=a.byEx[ex],mus=arr[0].mus,r=rxOf(ex,mus);
+if(!r[2]){out.push({ex:ex,w:0,reps:r[1],groups:arr.length,adj:'自重加次数'});return;}
+if(isBW(ex)&&n(arr[0].w)===0){
+  out.push({ex:'负重引体',w:5,reps:5,groups:4,adj:'稳步加配重+5kg'});return;
+}
+var top=0;arr.forEach(function(t){if(n(t.w)>top)top=n(t.w);});
+var ts=arr.filter(function(t){return n(t.w)===top;}),maxR=0,allHit=true;
+ts.forEach(function(t){var rr=n(t.r),ri=(t.rir===null||t.rir===undefined)?null:n(t.rir);
+if(rr>maxR)maxR=rr;if(rr<r[1]||(ri!==null&&ri>2))allHit=false;});
+var nw,nr,adj;
+if(allHit&&ts.length>=2){
+ nw=top+r[2];nr=r[0];adj='达上限·加最小档';
+}else{
+ nw=top;nr=Math.min(r[1],maxR+1);adj='固定重量冲上限';
+}
+var g=arr.length;out.push({ex:ex,w:nw,reps:nr,groups:g>4?4:(g<2?3:g),adj:adj});});
+if(s.part==='胸'&&!a.pat['平推'])out.splice(1,0,{ex:'平板杠铃卧推',w:75,reps:6,groups:3,adj:'补力量锚点'});
+if(!a.vm['腹/核心'])out.push({ex:'反向卷腹',w:0,reps:15,groups:3,adj:'固定核心'});
+return out;}
+
+function flagsOf(s,a){
+var f=[];
+if(a.bad)f.push(['删掉 '+a.bad+' 组无效组','负荷 <30% 1RM 或 RIR>4，只留疲劳不长肉。','bad']);
+a.over.forEach(function(o){f.push([o.m+' 超单课上限 ('+o.c+'组)','单课控制在 8–12 组内效率最高。','mid']);});
+a.dup.forEach(function(d){f.push([d.p+' 动作重复 ('+d.c+'组)','同角度留 4 组即可，其余换平板或夹胸。','mid']);});
+if(s.part==='胸'&&!a.pat['平推'])f.push(['缺平板卧推力量锚点','下次保留 3 组平板杠铃维持绝对力量。','mid']);
+if(a.low)f.push([a.low+' 组递减降重过深','常规组不递减，仅末项末组可降一档收尾。','mid']);
+if(!a.vm['腹/核心'])f.push(['未练核心腹肌','每课末段固定 3 组卷腹/举腿。','mid']);
+return f;}
+
+function greensOf(s,a){
+var g=[];if(!a.bad)g.push('零无效废组');if(!a.low)g.push('全程稳重，无垃圾递减');
+if(!a.over.length)g.push('各肌群容量在 8–12 组甜点区');if(a.rate>=85)g.push('有效率 '+fmt(a.rate,0)+'%，机械张力充沛');
+if(a.vm['腹/核心'])g.push('核心腹肌已打卡');
+if(!g.length)g.push('完成记录');return g;}
+
+function lbm(){return S.profile.w*(1-S.profile.bf/100);}
+function bmi(){var m=S.profile.h/100;return m>0?S.profile.w/(m*m):0;}
+function ffmi(){var m=S.profile.h/100;return m>0?lbm()/(m*m):0;}
+function adonis(){return S.profile.wa>0?S.profile.sh/S.profile.wa:0;}
+function bmr(){var p=S.profile;return ((10*p.w+6.25*p.h-5*p.age+5)+(370+21.6*(p.w*0.756)))/2;}
+function tdee(){var f=n(S.profile.freq);return bmr()*(f>=6?1.6:f>=5?1.55:f>=3?1.45:1.3);}
+function targets(){var p=S.profile,k=2150,pr=Math.round(p.w*2.34),fa=Math.round(p.w*0.98);
+return{kcal:k,p:pr,f:fa,c:Math.max(0,Math.round((k-pr*4-fa*9)/4))};}
+function wheyP(){return Math.round(30*(n(S.profile.wheyPct)||80)/100*10)/10;}
+function latest(){for(var i=S.sessions.length-1;i>=0;i--){if((S.sessions[i].sets||[]).length)return S.sessions[i];}
+return S.sessions.length?S.sessions[S.sessions.length-1]:null;}
+
+/* SECTION: dom helpers */
+function metric(host,k,v,note,cls){host.insertAdjacentHTML('beforeend',T.m);var e=host.lastElementChild;
+if(cls)e.classList.add(cls);e.querySelector('.k').textContent=k;e.querySelector('.v').textContent=v;
+e.querySelector('.n').textContent=note||'';}
+function item(host,title,detail,badge,cls){host.insertAdjacentHTML('beforeend',T.item);var e=host.lastElementChild;
+if(cls)e.classList.add(cls);e.querySelector('b').textContent=title;
+var b=e.querySelector('.badge');b.textContent=badge||'';
+b.classList.add(cls==='ok'?'b-ok':cls==='mid'?'b-mid':cls==='bad'?'b-bad':cls==='cy'?'b-cy':'b-na');
+e.querySelector('.id').textContent=detail||'';return e;}
+function barItem(host,title,detail,badge,cls,pct,barCls,lo,hi){
+host.insertAdjacentHTML('beforeend',T.itemBar);var e=host.lastElementChild;
+if(cls)e.classList.add(cls);e.querySelector('b').textContent=title;
+var b=e.querySelector('.badge');b.textContent=badge||'';
+b.classList.add(cls==='ok'?'b-ok':cls==='mid'?'b-mid':cls==='bad'?'b-bad':'b-na');
+e.querySelector('.id').textContent=detail||'';
+var i=e.querySelector('.bar i');i.style.width=Math.max(0,Math.min(100,pct))+'%';if(barCls)i.classList.add(barCls);
+var L=e.querySelector('.lo'),H=e.querySelector('.hi');
+if(lo===undefined)L.remove();else L.style.left=Math.min(100,lo)+'%';
+if(hi===undefined)H.remove();else H.style.left=Math.min(100,hi)+'%';return e;}
+function svgEl(tag,attrs){var e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+if(attrs)Object.keys(attrs).forEach(function(k){e.setAttribute(k,String(attrs[k]));});return e;}
+
+function renderStore(){
+var c=el('storeChip'),t=el('storeTxt');
+c.classList.remove('ok','warn','bad');
+if(!storageOK){c.classList.add('bad');t.textContent='存储异常';return;}
+var last=latest();
+c.classList.add(S.sessions.length?'ok':'warn');
+t.textContent='已存 '+S.sessions.length+' 练 · 最新 '+(last?(last.date.slice(5)+' '+last.part):'—');}
+
+/* SECTION: log & preset loader */
+function activePreset(part){
+  if(S.customPresets && S.customPresets[part] && S.customPresets[part].length)return S.customPresets[part];
+  return PRESETS[part]||[];
+}
+function applyPreset(part){
+var rows=activePreset(part);
+var out=[];
+rows.forEach(function(r){
+  var cnt=r[5]||3;
+  for(var i=0;i<cnt;i++){
+    out.push({id:uid(),ex:r[0],mus:r[1],w:r[2],r:r[3],rir:r[4]});
+  }
+});
+var bak=S.draft.sets.slice();
+S.draft.part=part;
+S.draft.date=el('sDate').value||today();
+S.draft.sets=out;
+persist();renderLog();
+toast('已载入「'+part+'日」最新处方 ('+out.length+' 组)，可直接改次数','ok',
+  bak.length?{undo:function(){S.draft.sets=bak;persist();renderLog();}}:null);
+}
+
+function renderPartPills(part){
+var host=el('partExPills');clear(host);
+var rows=activePreset(part);
+rows.forEach(function(r){
+  var b=document.createElement('button');b.className='pillbtn';
+  b.textContent=r[0]+' ('+wLabel(r[0],r[2])+'×'+r[3]+')';
+  b.addEventListener('click',function(){
+    el('iEx').value=r[0];el('iMus').value=r[1];
+    el('iW').value=r[2];el('iR').value=r[3];el('iRIR').value=r[4];
+    syncConv();
+  });
+  host.appendChild(b);
+});
+}
+
+function syncConv(){
+var v=el('iEx').value,lab=el('iWLab'),iw=el('iW'),tag=el('wHint'),h=el('convHint');
+if(BWADD[v]){lab.textContent='配重 kg (0=自重)';iw.placeholder='5';tag.textContent='体重+配重';
+h.textContent='引体填外加配重，自动加体重 '+fmt(S.profile.w)+'kg';}
+else if(BWONLY[v]){lab.textContent='自重 (填 0)';iw.placeholder='0';tag.textContent='纯自重';
+h.textContent='自重核心动作按 RIR 判定有效性';}
+else if(isPair(v)){lab.textContent='单只重量 kg';iw.placeholder='';tag.textContent='单只×2';
+h.textContent='双手哑铃填单只重量，自动×2算总负荷';}
+else{lab.textContent='重量 kg';iw.placeholder='';tag.textContent='总重';
+h.textContent='器械/杠铃填实际总重量';}}
+
+var dragIdx=null;
+function renderLog(){
+var adv=S.aiAdvice||{};
+el('aiTitle').textContent=adv.title||'🤖 AI 动态教练批注';
+el('aiDate').textContent=adv.date?('更新于 '+adv.date):'实时同步';
+el('aiText').textContent=adv.text||'练前点「⚡ 载入标准处方」，练完保存即可自动同步云端供 AI 动态分析。';
+var last=latest(), recPart=last?(NEXT_PART[last.part]||'胸'):'胸';
+el('cycleHint').textContent=last?('上次'+last.part+' → 顺延推荐：'+recPart+'日'):'循环：胸→腿→肩→背→休';
+el('sDate').value=S.draft.date||today();
+el('sPart').value=S.draft.part||recPart;
+el('sDur').value=S.draft.dur||'';
+el('sNote').value=S.draft.note||'';
+renderPartPills(el('sPart').value);
+
+var tb=el('dBody');clear(tb);var sets=S.draft.sets||[];
+el('dCount').textContent=sets.length+' 组';
+el('dEmpty').classList.toggle('hide',sets.length>0);
+
+sets.forEach(function(t,idx){
+tb.insertAdjacentHTML('beforeend',T.drow);var tr=tb.lastElementChild,j=judge(t);
+tr.dataset.idx=String(idx);
+tr.querySelector('.c2').textContent=(idx+1)+'. '+t.ex;
+tr.querySelector('.c3').textContent=t.mus;
+var iw=tr.querySelector('.row-w'), ir=tr.querySelector('.row-r'), irir=tr.querySelector('.row-rir');
+iw.value=t.w; ir.value=t.r; irir.value=(t.rir===null||t.rir===undefined)?'':t.rir;
+tr.querySelector('.w-unit').textContent=wUnit(t.ex);
+tr.querySelector('.c7').textContent=j.one?(fmt(j.one)+'kg · '+fmt(j.load,0)+'%'):'自重';
+var b=tr.querySelector('.c9 .badge');b.textContent=j.txt;b.classList.add(j.cls);
+
+iw.addEventListener('change',function(){t.w=n(this.value);persist();renderLog();});
+ir.addEventListener('change',function(){t.r=n(this.value);persist();renderLog();});
+irir.addEventListener('change',function(){t.rir=this.value===''?null:n(this.value);persist();renderLog();});
+
+tr.querySelector('.row-dup').addEventListener('click',function(ev){ev.stopPropagation();
+var copy={id:uid(),ex:t.ex,mus:t.mus,w:t.w,r:t.r,rir:t.rir};
+S.draft.sets.splice(idx+1,0,copy);persist();renderLog();toast('已复制 1 组 '+t.ex,'ok');});
+
+tr.querySelector('.row-del').addEventListener('click',function(ev){ev.stopPropagation();
+var rm=S.draft.sets.splice(idx,1)[0];persist();renderLog();
+toast('已删 1 组','',{undo:function(){S.draft.sets.splice(idx,0,rm);persist();renderLog();}});});
+
+tr.addEventListener('dragstart',function(){tr.classList.add('dragging');dragIdx=idx;});
+tr.addEventListener('dragend',function(){tr.classList.remove('dragging');});
+tr.addEventListener('dragover',function(ev){ev.preventDefault();});
+tr.addEventListener('drop',function(ev){ev.preventDefault();
+if(dragIdx===null||dragIdx===idx)return;var m=S.draft.sets.splice(dragIdx,1)[0];
+S.draft.sets.splice(idx,0,m);dragIdx=null;persist();renderLog();});
+});
+
+var vh=el('dVol');clear(vh);var vm=volMap(sets),keys=Object.keys(vm);
+if(!keys.length)vh.innerHTML='<div class="empty">载入处方或添加组次后实时核查容量。</div>';
+keys.forEach(function(k){var c=vm[k],cls=c>CAP_HI?'bad':c>=CAP_LO?'ok':'mid',bar=c>CAP_HI?'bad':'';
+barItem(vh,k,'本课 '+c+' 组 · 建议上限 '+CAP_HI+' 组',c>CAP_HI?'超量':c>=CAP_LO?'最佳区间':'适中',
+cls,c/CAP_HI*100,bar,CAP_LO/CAP_HI*100,100);});
+
+var qh=el('dQual');clear(qh);
+var eff=0,mid=0,bad=0;sets.forEach(function(t){var j=judge(t);
+if(j.txt==='有效')eff++;else if(j.txt==='边际')mid++;else if(j.txt==='无效')bad++;});
+var rate=sets.length?eff/sets.length*100:0;
+metric(qh,'有效组',String(eff),'≥30%1RM 且 RIR≤2','ok');
+metric(qh,'边际组',String(mid),'RIR 3 (余力偏多)','warn');
+metric(qh,'无效组',String(bad),'<30%1RM 或 RIR≥4',bad?'bad':'ok');
+metric(qh,'有效率',fmt(rate,0)+'%','目标 ≥85%',rate>=85?'ok':rate>=70?'warn':'bad');
+el('dQualNote').textContent='提示：负荷 ≥30% 1RM 且接近力竭（RIR 0–2）即产生有效肌肥大刺激；最后一个孤立动作末组可 RIR 0 并降一档收尾。';
+syncConv();}
+
+function addSet(count){
+var cnt=count||1;
+var ex=el('iEx').value.trim(),mus=el('iMus').value,w=n(el('iW').value),r=n(el('iR').value),rr=el('iRIR').value;
+if(!ex){toast('请先选择或输入动作','bad');return;}
+if(r<=0){toast('请填写次数','bad');return;}
+for(var i=0;i<cnt;i++){
+  S.draft.sets.push({id:uid(),ex:ex,mus:mus||EXMAP[ex]||'未分类',w:w,r:r,rir:rr===''?1:n(rr)});
+}
+persist();renderLog();
+toast('已添加 '+cnt+' 组 '+ex,'ok');}
+
+function saveSession(jump){
+if(!S.draft.sets.length){toast('还没有组次可保存','bad');return;}
+var savedPart=S.draft.part;
+S.sessions.push({id:uid(),date:S.draft.date||today(),part:savedPart,dur:n(S.draft.dur)||null,
+note:S.draft.note||'',sets:S.draft.sets.slice()});
+S.sessions.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
+S.draft.sets=[];S.draft.note='';S.draft.part=NEXT_PART[savedPart]||'胸';
+persist();renderLog();renderStore();
+toast('已保存 '+savedPart+'日训练','ok');
+if(jump)go('review');}
+
+/* SECTION: review */
+function renderReview(){
+var s=latest();
+el('rvDate').textContent=s?(s.date+' · '+s.part+'日'):'—';
+var nums=el('rvNums');clear(nums);
+var fh=el('rvFlags');clear(fh);var gh=el('rvGreens');clear(gh);var tb=el('rvRx');clear(tb);
+var wk=el('rvWeek');clear(wk);var meta=el('rvMeta');clear(meta);
+if(!s){el('rvBadge').className='gbadge';el('rvBadge').firstElementChild.textContent='—';
+el('rvTitle').textContent='还没有记录';el('rvDesc').textContent='去「记训练」添加组次。';
+el('rvOpen').disabled=true;return;}
+el('rvOpen').disabled=false;
+var a=analyze(s);
+var badge=el('rvBadge');badge.className='gbadge g-'+a.grade;badge.firstElementChild.textContent=a.grade;
+var titles={S:'S 级 · 极佳',A:'A 级 · 良好',B:'B 级 · 有冗余',C:'C 级 · 需重排'};
+var descs={S:'零废组、张力饱满、容量精准。继续保持！',A:'主体高效，细节微调见下方。',
+B:'存在边际或低效组，下次精简组数。',C:'无效递减或轻重量组过多，请直接载入标准处方。'};
+el('rvTitle').textContent=titles[a.grade];el('rvDesc').textContent=descs[a.grade];
+[[s.part+'日','b-cy'],[s.sets.length+' 组','b-na'],[(s.dur||65)+' 分钟','b-na']].forEach(function(x){
+var sp=document.createElement('span');sp.className='badge '+x[1];sp.textContent=x[0];meta.appendChild(sp);});
+metric(nums,'有效率',fmt(a.rate,0)+'%',a.eff+' / '+a.sets.length+' 组',a.rate>=85?'ok':a.rate>=70?'warn':'bad');
+metric(nums,'总组数',String(a.sets.length),'单肌群上限 '+CAP_HI,'cy');
+metric(nums,'无效组',String(a.bad),a.bad?'需砍除':'零废组',a.bad?'bad':'ok');
+metric(nums,'节奏',s.dur?fmt(s.dur/a.sets.length,1):'2.8','分钟 / 组','li');
+var fl=flagsOf(s,a);
+if(!fl.length)item(fh,'无违规项','容量、负荷与动作结构全部符合健体标准。','完美','ok');
+fl.slice(0,5).forEach(function(x){item(fh,x[0],x[1],'优化',x[2]);});
+greensOf(s,a).forEach(function(g){item(gh,g,'','✓','ok');});
+var rx=buildRx(s,a);
+rx.forEach(function(r){tb.insertAdjacentHTML('beforeend',T.prow);var tr=tb.lastElementChild;
+tr.querySelector('.c1').textContent=r.ex;tr.querySelector('.c2').textContent=wLabel(r.ex,r.w);
+tr.querySelector('.c3').textContent=r.reps+' 次';tr.querySelector('.c4').textContent=r.groups+' 组';
+var b=tr.querySelector('.badge');b.textContent=r.adj;
+b.classList.add(r.adj.indexOf('加')>=0?'b-li':'b-cy');});
+el('rxLoad').onclick=function(){
+var expanded=[];
+rx.forEach(function(r){
+  for(var i=0;i<(r.groups||3);i++)expanded.push({id:uid(),ex:r.ex,mus:EXMAP[r.ex]||'未分类',w:r.w,r:r.reps,rir:1});
+});
+S.draft={date:today(),part:s.part,dur:'',note:'',sets:expanded};
+persist();go('log');toast('已载入下次 '+s.part+'日进阶处方 ('+expanded.length+' 组)','ok');};
+el('rvOpen').onclick=function(){openDrawer(s.id);};
+renderWeek(wk,s.date);}
+
+function renderWeek(host,dateStr){
+clear(host);
+var end=dateStr||today(),start=dshift(end,-6),agg={};
+S.sessions.forEach(function(s){if(s.date>=start&&s.date<=end)(s.sets||[]).forEach(function(t){
+var k=t.mus||'未分类';agg[k]=(agg[k]||0)+1;});});
+var keys=Object.keys(agg);
+if(!keys.length){host.innerHTML='<div class="empty">近 7 天暂无记录。</div>';return;}
+keys.sort(function(x,y){return agg[y]-agg[x];});
+keys.forEach(function(k){var b=weekBand(k),c=agg[k],st,cls,bar;
+if(c<b[0]){st='偏低 · 可补3组';cls='mid';bar='warn';}
+else if(c>b[1]){st='超量 · 勿再加';cls='bad';bar='bad';}
+else{st='达标区间';cls='ok';bar='';}
+barItem(host,k,'近7天 '+c+' 组 · 建议 '+b[0]+'–'+b[1]+' 组',st,cls,c/b[1]*100,bar,b[0]/b[1]*100,100);});}
+
+/* SECTION: history */
+var hFilter={q:'',part:'',sort:'date-desc'};
+function filtered(){
+var arr=S.sessions.slice();
+if(hFilter.part)arr=arr.filter(function(s){return s.part===hFilter.part;});
+if(hFilter.q){var q=hFilter.q.toLowerCase();
+arr=arr.filter(function(s){return (s.date+' '+s.part+' '+(s.note||'')+' '+
+(s.sets||[]).map(function(t){return t.ex;}).join(' ')).toLowerCase().indexOf(q)>=0;});}
+var ord={S:0,A:1,B:2,C:3};
+arr.sort(function(a,b){
+var A=analyze(a),B=analyze(b);
+switch(hFilter.sort){
+case 'date-asc':return a.date<b.date?-1:1;
+case 'grade':return ord[A.grade]-ord[B.grade];
+case 'rate':return B.rate-A.rate;
+default:return a.date<b.date?1:-1;}});
+return arr;}
+
+function renderHist(){
+el('hQ').value=hFilter.q;el('hPart').value=hFilter.part;el('hSort').value=hFilter.sort;
+var vc=el('viewChips');clear(vc);
+S.views.forEach(function(v,i){var b=document.createElement('button');
+b.className='pillbtn'+((v.part===hFilter.part&&v.sort===hFilter.sort&&v.q===hFilter.q)?' on':'');
+b.textContent=v.name;
+b.addEventListener('click',function(){hFilter={q:v.q,part:v.part,sort:v.sort};renderHist();});
+vc.appendChild(b);});
+var arr=filtered(),host=el('hList');clear(host);
+el('hCount').textContent=arr.length+' / '+S.sessions.length+' 次';
+if(!arr.length){host.innerHTML='<div class="empty">没有匹配的训练记录。</div>';}
+arr.forEach(function(s){
+var a=analyze(s);
+host.insertAdjacentHTML('beforeend',T.scard);var c=host.lastElementChild;
+c.dataset.id=s.id;
+if(S.hSel.indexOf(s.id)>=0)c.classList.add('sel');
+var cb=c.querySelector('input');cb.checked=S.hSel.indexOf(s.id)>=0;
+cb.addEventListener('click',function(ev){ev.stopPropagation();
+var i=S.hSel.indexOf(s.id);if(cb.checked){if(i<0)S.hSel.push(s.id);}else if(i>=0)S.hSel.splice(i,1);
+renderHist();});
+var g=c.querySelector('.sg');g.classList.add('g-'+a.grade);g.firstElementChild.textContent=a.grade;
+c.querySelector('.l1 b').textContent=s.date+' · '+s.part+'日';
+var bd=c.querySelector('.l1 .badge');bd.textContent=fmt(a.rate,0)+'% 有效';
+bd.classList.add(a.rate>=85?'b-ok':a.rate>=70?'b-mid':'b-bad');
+c.querySelector('.l2').textContent=s.sets.length+' 组 · 废组 '+a.bad+' · '+(s.dur?s.dur+' 分钟':'—')+(s.note?(' · '+s.note):'');
+var l3=c.querySelector('.l3');
+Object.keys(a.vm).forEach(function(k){var m=document.createElement('span');m.className='mini';
+m.textContent=k+' '+a.vm[k];l3.appendChild(m);});
+c.addEventListener('click',function(){openDrawer(s.id);});});
+renderStrChart();renderAtt();}
+
+function renderAtt(){
+var host=el('attNums');clear(host);
+var end=today(),start=dshift(end,-29),set={};
+S.sessions.forEach(function(s){set[s.date]=1;});
+var cnt=0;S.sessions.forEach(function(s){if(s.date>=start&&s.date<=end)cnt++;});
+var expect=Math.round(30*(n(S.profile.freq)/7)),rate=expect?cnt/expect*100:0;
+metric(host,'近30天',cnt+' 练','目标 '+expect+' 练',rate>=80?'ok':'warn');
+metric(host,'达成率',fmt(rate,0)+'%','练四休一节奏',rate>=80?'ok':'warn');
+metric(host,'总累计',S.sessions.length+' 练','历史记录','cy');
+var d=el('attDots');clear(d);
+for(var k=29;k>=0;k--){var day=dshift(end,-k),i2=document.createElement('i');
+i2.title=day+(set[day]?' 已练':' 休息');if(set[day])i2.className='on';d.appendChild(i2);}}
+
+var strHidden={};
+function renderStrChart(){
+var host=el('strChart');clear(host);
+var exs=[];S.sessions.forEach(function(s){(s.sets||[]).forEach(function(t){
+if(loadOf(t)>0&&exs.indexOf(t.ex)<0)exs.push(t.ex);});});
+exs.sort(function(a,b){return best1RM(b)-best1RM(a);});exs=exs.slice(0,8);
+if(!exs.length){host.innerHTML='<div class="empty">暂无曲线数据</div>';return;}
+var dates=S.sessions.map(function(s){return s.date;}).filter(function(v,i,arr){return arr.indexOf(v)===i;}).sort();
+var series=exs.map(function(ex,i){
+var pts=[];dates.forEach(function(d,di){var best=0;
+S.sessions.forEach(function(s){if(s.date===d)(s.sets||[]).forEach(function(t){
+if(t.ex===ex&&loadOf(t)>0){var v=epley(loadOf(t),t.r);if(v>best)best=v;}});});
+if(best>0)pts.push({x:di,y:best,d:d});});
+return{ex:ex,color:HUES[i%HUES.length],pts:pts};});
+var W=680,H=240,PL=44,PR=80,PT=16,PB=30;
+var vals=[];series.forEach(function(s){if(strHidden[s.ex])return;s.pts.forEach(function(p){vals.push(p.y);});});
+if(!vals.length)vals=[0,100];
+var mn=Math.min.apply(null,vals)*.92,mx=Math.max.apply(null,vals)*1.06;if(mx-mn<10){mn-=5;mx+=5;}
+var X=function(i){return PL+(dates.length<2?0:i/(dates.length-1)*(W-PL-PR));};
+var Y=function(v){return PT+(1-(v-mn)/(mx-mn))*(H-PT-PB);};
+var svg=svgEl('svg',{viewBox:'0 0 '+W+' '+H});
+for(var g=0;g<=4;g++){var yy=PT+g/4*(H-PT-PB),vv=mx-g/4*(mx-mn);
+svg.appendChild(svgEl('line',{x1:PL,y1:yy,x2:W-PR,y2:yy,stroke:'#242E40',"stroke-width":1}));
+var tx=svgEl('text',{x:PL-6,y:yy+4,fill:'#6E7D94',"font-size":10,"text-anchor":'end'});
+tx.textContent=Math.round(vv);svg.appendChild(tx);}
+dates.forEach(function(d,i){
+var tx=svgEl('text',{x:X(i),y:H-10,fill:'#6E7D94',"font-size":10,"text-anchor":'middle'});
+tx.textContent=d.slice(5);svg.appendChild(tx);});
+series.forEach(function(s){
+if(strHidden[s.ex]||!s.pts.length)return;
+var dpath=s.pts.map(function(p,i){return (i?'L':'M')+X(p.x).toFixed(1)+' '+Y(p.y).toFixed(1);}).join(' ');
+svg.appendChild(svgEl('path',{d:dpath,fill:'none',stroke:s.color,"stroke-width":2.2}));
+s.pts.forEach(function(p){var c=svgEl('circle',{cx:X(p.x),cy:Y(p.y),r:3.8,fill:'#0B0E14',stroke:s.color,"stroke-width":2});
+var ti=svgEl('title');ti.textContent=s.ex+' · '+p.d+' · '+fmt(p.y)+'kg';c.appendChild(ti);svg.appendChild(c);});
+var lastP=s.pts[s.pts.length-1];
+var lb=svgEl('text',{x:X(lastP.x)+7,y:Y(lastP.y)+4,fill:s.color,"font-size":10,"font-weight":700});
+lb.textContent=s.ex.slice(0,6);svg.appendChild(lb);});
+host.appendChild(svg);
+var lgd=el('strLegend');clear(lgd);
+series.forEach(function(s){var b=document.createElement('button');
+b.className='lg'+(strHidden[s.ex]?' off':'');
+var i=document.createElement('i');i.style.background=s.color;b.appendChild(i);
+var sp=document.createElement('span');sp.textContent=s.ex+' '+fmt(best1RM(s.ex));b.appendChild(sp);
+b.addEventListener('click',function(){strHidden[s.ex]=!strHidden[s.ex];renderStrChart();});
+lgd.appendChild(b);});}
+
+/* SECTION: drawer */
+var dwId=null;
+function openDrawer(id){
+var s=S.sessions.filter(function(x){return x.id===id;})[0];if(!s)return;
+dwId=id;var a=analyze(s);
+el('dwTitle').textContent=s.date+' · '+s.part+'日 · '+a.grade+' 级';
+var b=el('dwBody');clear(b);
+var top=document.createElement('div');top.className='grid g4';b.appendChild(top);
+metric(top,'组数',String(s.sets.length),'','cy');
+metric(top,'有效率',fmt(a.rate,0)+'%',a.eff+' 有效',a.rate>=85?'ok':'warn');
+metric(top,'废组',String(a.bad),'',a.bad?'bad':'ok');
+metric(top,'时长',(s.dur||'—')+' min','','li');
+var meta=document.createElement('div');meta.style.marginTop='12px';b.appendChild(meta);
+var r1=document.createElement('div');r1.className='row';
+var fA=document.createElement('div');fA.className='f1';
+var lA=document.createElement('label');lA.textContent='日期';var iA=document.createElement('input');
+iA.type='date';iA.id='dwDate';iA.value=s.date;fA.appendChild(lA);fA.appendChild(iA);
+var fB=document.createElement('div');fB.className='f1';
+var lB=document.createElement('label');lB.textContent='部位';var iB=document.createElement('select');
+iB.id='dwPart';['胸','腿','肩','背'].forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;iB.appendChild(o);});
+iB.value=s.part;fB.appendChild(lB);fB.appendChild(iB);
+var fC=document.createElement('div');fC.className='f1';
+var lC=document.createElement('label');lC.textContent='时长(分)';var iC=document.createElement('input');
+iC.type='number';iC.id='dwDur';iC.value=s.dur||'';fC.appendChild(lC);fC.appendChild(iC);
+r1.appendChild(fA);r1.appendChild(fB);r1.appendChild(fC);meta.appendChild(r1);
+var lN=document.createElement('label');lN.textContent='备注';lN.style.marginTop='8px';
+var iN=document.createElement('input');iN.id='dwNote';iN.value=s.note||'';
+meta.appendChild(lN);meta.appendChild(iN);
+var t=document.createElement('div');t.className='sect-t';t.textContent='逐组明细（可直接修改）';b.appendChild(t);
+var list=document.createElement('div');list.id='dwSets';b.appendChild(list);
+s.sets.forEach(function(st,i){
+list.insertAdjacentHTML('beforeend',T.dset);var row=list.lastElementChild;
+row.querySelector('label').textContent=(i+1)+'. '+st.ex+' ('+st.mus+')';
+row.querySelector('.e-ex').value=st.ex;
+row.querySelector('.e-w').value=st.w;
+row.querySelector('.e-r').value=st.r;
+row.querySelector('.e-rir').value=(st.rir===null||st.rir===undefined)?'':st.rir;
+row.dataset.sid=st.id;
+row.querySelector('.e-del').addEventListener('click',function(){row.remove();});
+});
+var add=document.createElement('button');add.className='btn ghost sm';add.textContent='+ 加一组';
+add.style.marginTop='6px';
+add.addEventListener('click',function(){
+list.insertAdjacentHTML('beforeend',T.dset);var row=list.lastElementChild;
+row.querySelector('label').textContent='新组';row.dataset.sid=uid();
+row.querySelector('.e-del').addEventListener('click',function(){row.remove();});});
+b.appendChild(add);
+el('scrim').classList.add('on');el('drawer').classList.add('on');}
+function closeDrawer(){el('scrim').classList.remove('on');el('drawer').classList.remove('on');dwId=null;}
+function dwSave(){
+var s=S.sessions.filter(function(x){return x.id===dwId;})[0];if(!s)return;
+s.date=el('dwDate').value||s.date;s.part=el('dwPart').value;
+s.dur=n(el('dwDur').value)||null;s.note=el('dwNote').value;
+var rows=el('dwSets').children,out=[];
+for(var i=0;i<rows.length;i++){var r=rows[i];
+var ex=r.querySelector('.e-ex').value.trim();if(!ex)continue;
+var rr=r.querySelector('.e-rir').value;
+out.push({id:r.dataset.sid||uid(),ex:ex,mus:EXMAP[ex]||'未分类',
+w:n(r.querySelector('.e-w').value),r:n(r.querySelector('.e-r').value),rir:rr===''?null:n(rr)});}
+s.sets=out;delete s.restored;
+S.sessions.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
+persist();closeDrawer();renderAll();toast('修改已保存','ok');}
+function dwDelete(){
+var idx=-1;S.sessions.forEach(function(x,i){if(x.id===dwId)idx=i;});
+if(idx<0)return;var rm=S.sessions.splice(idx,1)[0];
+persist();closeDrawer();renderAll();
+toast('已删除 '+rm.date+' '+rm.part,'bad',{undo:function(){S.sessions.splice(idx,0,rm);persist();renderAll();}});}
+
+/* SECTION: nutrition */
+function renderNutri(){
+var d=el('nDate').value||today(),f=S.food[d]||{p:0,c:0,f:0,w:0,s:7},tg=targets();
+el('nP').value=f.p||'';el('nC').value=f.c||'';el('nF').value=f.f||'';
+el('nW').value=f.w||'';el('nS').value=f.s||'';
+el('nTargetTag').textContent='重组目标：'+tg.kcal+' kcal · 蛋白 '+tg.p+'g · 碳水 '+tg.c+'g · 脂肪 '+tg.f+'g';
+var qr=el('quickRow');clear(qr);
+QUICK.forEach(function(q){var b=document.createElement('button');b.className='pillbtn';
+var ap=q.whey?wheyP():q.p;
+b.textContent='+ '+q.n+' ('+ap+'g蛋白)';
+b.addEventListener('click',function(){
+var cur=S.food[d]||{p:0,c:0,f:0,w:0,s:7};
+cur.p=Math.round((n(cur.p)+ap)*10)/10;cur.c=Math.round((n(cur.c)+q.c)*10)/10;cur.f=Math.round((n(cur.f)+q.f)*10)/10;
+S.food[d]=cur;persist();renderNutri();toast('已加 '+q.n+' (+'+ap+'g蛋白)','ok');});
+qr.appendChild(b);});
+var kc=n(f.p)*4+n(f.c)*4+n(f.f)*9,nums=el('nNums');clear(nums);
+metric(nums,'今日热量',Math.round(kc)+' kcal','目标 '+tg.kcal+' (TDEE '+Math.round(tdee())+')',kc>tdee()?'bad':'ok');
+metric(nums,'蛋白质',fmt(n(f.p))+' g','目标 '+tg.p+'g (150–160g)',n(f.p)>=150?'ok':'bad');
+metric(nums,'饮水',fmt(n(f.w)*.25,2)+' L',n(f.w)+' 杯 · 目标 10+杯',n(f.w)>=10?'ok':'warn');
+metric(nums,'睡眠',fmt(n(f.s))+' h','建议 7.5h+',n(f.s)>=7.5?'ok':'warn');
+var bh=el('nBars');clear(bh);
+barItem(bh,'蛋白质',fmt(n(f.p))+' / '+tg.p+' g',n(f.p)>=150?'已达标':'还差 '+fmt(Math.max(0,tg.p-n(f.p)),0)+'g',
+n(f.p)>=150?'ok':'bad',tg.p?n(f.p)/tg.p*100:0,n(f.p)>=150?'':'bad');
+barItem(bh,'总热量',Math.round(kc)+' / '+tg.kcal+' kcal',kc>tdee()?'超维持热量':'重组区间内',
+kc>tdee()?'bad':'ok',tg.kcal?kc/tg.kcal*100:0,kc>tdee()?'bad':'');
+barItem(bh,'碳水化合物',fmt(n(f.c))+' / '+tg.c+' g','训练表现燃料','cy',tg.c?n(f.c)/tg.c*100:0,'');
+barItem(bh,'脂肪',fmt(n(f.f))+' / '+tg.f+' g','激素合成底物','cy',tg.f?n(f.f)/tg.f*100:0,'');
+var gap=tg.p-n(f.p);
+el('nNote').textContent=gap>5?('今日蛋白还差 '+fmt(gap,0)+'g。推荐补法：乳清蛋白 1 勺 (+'+wheyP()+'g) 或 鸡胸100g (+22g) 或 酸奶135g+鸡蛋2个 (+26g)。'):'今日蛋白质已充足！注意红肉每日控制在 100–120g 生重内。';
+renderProChart();
+var sp=el('supp');clear(sp);
+item(sp,'一水肌酸 5g / 天','训练日与休息日均服。细胞内储水增重 1–2kg 属正常现象，只要腰围不涨即无需担心。','每日必服','ok');
+item(sp,'乳清蛋白粉','按当日饮食缺口灵活补充（1勺30g粉 ≈ '+wheyP()+'g蛋白质）。','按缺口补','cy');
+item(sp,'鱼油 + 复合维生素 D','随餐服用，保障基础抗炎与微量元素。','随餐','ok');}
+
+function renderProChart(){
+var host=el('proChart');clear(host);var tg=targets(),end=el('nDate').value||today();
+var days=[];for(var i=13;i>=0;i--)days.push(dshift(end,-i));
+var W=480,H=180,PL=36,PR=12,PT=14,PB=26;
+var mx=Math.max(tg.p*1.2,180);days.forEach(function(d){var f=S.food[d];if(f)mx=Math.max(mx,n(f.p)*1.1);});
+var svg=svgEl('svg',{viewBox:'0 0 '+W+' '+H});
+var bw=(W-PL-PR)/days.length;
+var ty=PT+(1-tg.p/mx)*(H-PT-PB);
+svg.appendChild(svgEl('line',{x1:PL,y1:H-PB,x2:W-PR,y2:H-PB,stroke:'#242E40'}));
+days.forEach(function(d,i){
+var f=S.food[d],p=f?n(f.p):0,h=p/mx*(H-PT-PB),x=PL+i*bw+bw*.18,w=bw*.64;
+var col=p>=150?'#3DDC84':p>0?'#FFB020':'#242E40';
+var r=svgEl('rect',{x:x,y:H-PB-Math.max(h,2),width:w,height:Math.max(h,2),rx:3,fill:col});
+var ti=svgEl('title');ti.textContent=d+' · 蛋白 '+fmt(p)+'g';r.appendChild(ti);svg.appendChild(r);
+if(i%2===0){var tx=svgEl('text',{x:x+w/2,y:H-8,fill:'#6E7D94',"font-size":9.5,"text-anchor":'middle'});
+tx.textContent=d.slice(5);svg.appendChild(tx);}});
+svg.appendChild(svgEl('line',{x1:PL,y1:ty,x2:W-PR,y2:ty,stroke:'#C8F24E',"stroke-width":1.4,"stroke-dasharray":"5 4"}));
+host.appendChild(svg);}
+
+/* SECTION: body */
+function renderBody(){
+var p=S.profile,nums=el('bNums');clear(nums);
+metric(nums,'Adonis 肩腰比',fmt(adonis(),3),'黄金比 1.618 (当前核心优势)',adonis()>=1.618?'ok':'cy');
+metric(nums,'胸腰差',fmt(p.ch-p.wa)+' cm','健体目标 22–28 cm',(p.ch-p.wa)>=20?'ok':'warn');
+metric(nums,'校准 FFMI',fmt(ffmi(),2),'中级训练者 20.5–21.5',ffmi()>=20?'ok':'warn');
+metric(nums,'去脂体重',fmt(lbm())+' kg','按校准体脂 '+fmt(p.bf)+'% 计','cy');
+metric(nums,'BMR 基础代谢',Math.round(bmr())+' kcal','双公式均值','li');
+metric(nums,'TDEE 总消耗',Math.round(tdee())+' kcal','练四休一 (5.6练/周)','cy');
+metric(nums,'重组热量',targets().kcal+' kcal','TDEE 微缺口 150','li');
+metric(nums,'蛋白目标',targets().p+' g/天','2.34 g/kg 体重','ok');
+var nw=p.sh/1.618,ns=p.wa*1.618;
+el('adonisNote').textContent='💡 达成 1.618 黄金肩腰比只需：腰围降至 '+fmt(nw)+'cm（再减 '+fmt(Math.max(0,p.wa-nw))+'cm），或肩围涨至 '+fmt(ns)+'cm。家用体脂秤受 BMI(25.6) 影响高估体脂，日常请以「晨起空腹腰围」为准。';
+['pH:h','pW:w','pBF:bf','pA:age','pSH:sh','pWA:wa','pCH:ch','pAR:ar','pTH:th','pFQ:freq','pWP:wheyPct'].forEach(function(m){
+var a=m.split(':');el(a[0]).value=p[a[1]];});
+var mb=el('mBody');clear(mb);
+S.measures.slice().sort(function(a,b){return a.date<b.date?1:-1;}).forEach(function(m){
+mb.insertAdjacentHTML('beforeend',T.mrow);var tr=mb.lastElementChild;
+tr.querySelector('.c1').textContent=m.date;tr.querySelector('.c2').textContent=fmt(m.w);
+tr.querySelector('.c3').textContent=fmt(m.bf)+'%';tr.querySelector('.c4').textContent=fmt(m.sh,1);
+tr.querySelector('.c5').textContent=fmt(m.wa,1);tr.querySelector('.c6').textContent=fmt(m.ar,1);
+tr.querySelector('.c7').textContent=fmt(m.ch,1);
+tr.querySelector('.c8').textContent=m.wa>0?fmt(m.sh/m.wa,3):'—';
+tr.querySelector('.c9 button').addEventListener('click',function(){
+var i=S.measures.indexOf(m);var rm=S.measures.splice(i,1)[0];persist();renderBody();
+toast('已删围度记录','bad',{undo:function(){S.measures.splice(i,0,rm);persist();renderBody();}});});});
+el('goalNote').textContent='🎯 8 周检验标准（2027-01-09）：腰围 76→74cm、肩围 118→120cm、臂围 34→35cm、Adonis ≥1.62、平板卧推 1RM ≥100kg、蛋白质达标率 ≥80%。';
+var bh=el('benchList');clear(bh);
+Object.keys(BENCH0).forEach(function(ex){
+bh.insertAdjacentHTML('beforeend',T.bfield);var f=bh.lastElementChild;
+f.querySelector('label').textContent=ex+(isBW(ex)?'(总重)':isPair(ex)?'(总负荷)':'');
+var inp=f.querySelector('input');inp.value=S.bench[ex]||'';inp.placeholder=fmt(best1RM(ex));
+inp.addEventListener('change',function(){var v=n(inp.value);if(v>0)S.bench[ex]=v;else delete S.bench[ex];
+persist();renderBody();renderLog();toast('基准已更新','ok');});});}
+
+/* SECTION: data & coach pack */
+function coachPack(){
+var L=[],p=S.profile,tg=targets();
+L.push('=== 训练台·教练复盘数据包 ('+today()+') ===');
+L.push('档案: '+p.h+'cm / '+fmt(p.w)+'kg / 校准体脂'+fmt(p.bf)+'% / '+p.age+'岁 / 练四休一(胸→腿→肩→背→休)');
+L.push('比例: Adonis '+fmt(adonis(),3)+' (肩'+p.sh+'/腰'+p.wa+') | 胸'+p.ch+' 臂'+p.ar+' 大腿'+p.th+' | FFMI '+fmt(ffmi(),2));
+L.push('营养目标: '+tg.kcal+'kcal / 蛋白'+tg.p+'g / 碳水'+tg.c+'g / 脂肪'+tg.f+'g');
+L.push('');
+var recent=S.sessions.slice().sort(function(a,b){return a.date<b.date?1:-1;}).slice(0,6).reverse();
+L.push('--- 最近 '+recent.length+' 次训练 ---');
+recent.forEach(function(s){
+var a=analyze(s);
+L.push('['+s.date+' '+s.part+'日] '+a.grade+'级 '+s.sets.length+'组 '+(s.dur||'?')+'min 有效率'+fmt(a.rate,0)+'% 废组'+a.bad);
+if(s.note)L.push('  备注: '+s.note);
+a.order.forEach(function(ex){
+var arr=a.byEx[ex],one=best1RM(ex);
+L.push('  '+ex+' (1RM~'+(one?fmt(one):'?')+'kg): '+
+arr.map(function(t){return wLabel(t.ex,t.w)+'x'+t.r+(t.rir===null||t.rir===undefined?'':'@'+t.rir);}).join(' | '));});
+});
+L.push('');
+L.push('--- 近7天营养 ---');
+var end=today(),okDays=0;
+for(var i=6;i>=0;i--){var d=dshift(end,-i),f=S.food[d];
+if(f&&n(f.p)>=150)okDays++;
+if(f)L.push(d+': 蛋白'+fmt(n(f.p))+'g 碳水'+fmt(n(f.c))+'g 脂肪'+fmt(n(f.f))+'g 水'+n(f.w)+'杯 睡'+fmt(n(f.s))+'h');}
+L.push('近7天蛋白达标: '+okDays+'/7 天');
+return L.join('\n');}
+
+function download(name,text,mime){
+try{var blob=new Blob([text],{type:mime||'text/plain;charset=utf-8'});
+var url=URL.createObjectURL(blob),a=document.createElement('a');
+a.href=url;a.download=name;document.body.appendChild(a);a.click();
+setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+toast('已下载 '+name,'ok');}catch(e){toast('下载失败，请用复制','bad');}}
+
+function copyText(txt,okMsg){
+var ta=document.createElement('textarea');ta.value=txt;
+ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);
+ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}
+ta.remove();
+if(ok)toast(okMsg||'已复制','ok');else toast('复制失败，请手动全选复制','bad');}
+
+function renderData(){
+var cc=loadCloudCfg();
+if(cc.provider)el('cProv').value=cc.provider;
+if(cc.token)el('cToken').value=cc.token;
+if(cc.id)el('cId').value=cc.id;
+if(cc.token&&cc.id)el('cBindCode').value='#cloud='+cc.provider+':'+cc.token+':'+cc.id;
+renderCloudStatus();
+var nums=el('stNums');clear(nums);
+var bytes=0;try{bytes=(localStorage.getItem(KEY)||'').length;}catch(e){}
+metric(nums,'训练次数',S.sessions.length+' 次','本机持久化','cy');
+metric(nums,'总组数',String(S.sessions.reduce(function(a,s){return a+(s.sets||[]).length;},0)),'累计正式组','li');
+metric(nums,'数据体积',(bytes/1024).toFixed(1)+' KB','localStorage','');
+metric(nums,'状态',storageOK?'正常':'异常','固定入口 训练台.html',storageOK?'ok':'bad');
+el('packArea').value=coachPack();
+var bl=el('bakList');clear(bl);var bs=backups();
+el('bakNote').textContent=bs.length?('已自动保存 '+bs.length+' 份历史快照，可随时一键回滚。'):'保存一次训练后即生成自动快照。';
+bs.forEach(function(b){
+var e=item(bl,new Date(b.ts).toLocaleString('zh-CN'),b.n+' 次训练 · 最新 '+b.last,'快照','cy');
+var btn=document.createElement('button');btn.className='btn cool xs';btn.textContent='恢复此快照';
+btn.style.marginTop='6px';
+btn.addEventListener('click',function(){
+try{var o=JSON.parse(localStorage.getItem(b.key));
+if(!o||!o.sessions)throw new Error('bad');
+localStorage.setItem(KEY,JSON.stringify(o));S=loadState();S.hSel=[];
+persist();renderAll();toast('已恢复快照','ok');}catch(err){toast('快照损坏','bad');}});
+e.appendChild(btn);});}
+
+function applyImport(text){
+try{var o=JSON.parse(text);
+if(!o||typeof o!=='object'||(!o.sessions&&!o.profile))throw new Error('bad');
+var d=defState();
+d.profile=Object.assign(d.profile,o.profile||{});
+d.bench=Object.assign(d.bench,o.bench||{});
+d.food=Object.assign(d.food,o.food||{});
+if(o.measures)d.measures=o.measures;
+if(o.views)d.views=o.views;
+if(o.sessions&&o.sessions.length){
+d.sessions=o.sessions.map(function(s){return{id:s.id||uid(),date:s.date,part:s.part||'背',
+dur:s.dur||null,note:s.note||'',restored:!!s.restored,
+sets:(s.sets||[]).map(function(t){var w=n(t.w);
+if(BWADD[t.ex]&&w>=40)w=Math.max(0,Math.round((w-n(d.profile.w))*10)/10);
+return{id:t.id||uid(),ex:t.ex,mus:t.mus||EXMAP[t.ex]||'未分类',w:w,r:n(t.r),rir:(t.rir===undefined?null:t.rir)};})};});}
+var have={};d.sessions.forEach(function(s){have[s.date+'|'+s.part]=1;});
+seed().forEach(function(s){if(!have[s.date+'|'+s.part])d.sessions.push(s);});
+d.sessions.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
+S=d;persist();renderAll();go('log');
+toast('导入成功：共 '+S.sessions.length+' 次训练','ok');}
+catch(e){toast('导入失败：JSON 格式无效','bad');}}
+
+/* SECTION: router & init */
+var VIEWS=['log','nutri','review','hist','body','data'];
+function go(v){
+VIEWS.forEach(function(k){el('v-'+k).classList.toggle('hide',k!==v);});
+var bs=el('tabs').querySelectorAll('button');
+for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].dataset.v===v);
+if(v==='review')renderReview();if(v==='log')renderLog();if(v==='hist')renderHist();
+if(v==='nutri')renderNutri();if(v==='body')renderBody();if(v==='data')renderData();
+try{history.replaceState(null,'','#'+v);}catch(e){}
+window.scrollTo({top:0,behavior:'smooth'});}
+
+function renderAll(){renderStore();renderLog();renderNutri();renderReview();renderHist();renderBody();renderData();}
+
+function initStatic(){
+var ms=el('iMus');clear(ms);
+MUSCLES.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;ms.appendChild(o);});
+var dl=el('exList');clear(dl);
+Object.keys(EXMAP).forEach(function(k){var o=document.createElement('option');o.value=k;dl.appendChild(o);});
+var last=latest(), recPart=last?(NEXT_PART[last.part]||'胸'):'胸';
+if(!S.draft.sets||!S.draft.sets.length)S.draft.part=recPart;
+el('sDate').value=S.draft.date||today();el('nDate').value=today();
+el('iRIR').value='1';}
+
+function bind(){
+el('tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.dataset.v)go(b.dataset.v);});
+el('iEx').addEventListener('change',function(){var m=EXMAP[this.value];if(m)el('iMus').value=m;syncConv();});
+el('iEx').addEventListener('input',syncConv);
+el('rirPills').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+el('iRIR').value=b.dataset.v;
+Array.prototype.forEach.call(this.children,function(x){x.classList.remove('on');});b.classList.add('on');});
+el('addSet').addEventListener('click',function(){addSet(1);});
+el('add3Set').addEventListener('click',function(){addSet(3);});
+el('iR').addEventListener('keydown',function(e){if(e.key==='Enter')addSet(1);});
+el('iRIR').addEventListener('keydown',function(e){if(e.key==='Enter')addSet(1);});
+el('sPart').addEventListener('change',function(){
+  S.draft.part=el('sPart').value;persist();renderPartPills(S.draft.part);
+});
+['sDate','sDur','sNote'].forEach(function(id){el(id).addEventListener('change',function(){
+S.draft.date=el('sDate').value;S.draft.dur=el('sDur').value;S.draft.note=el('sNote').value;persist();});});
+el('loadPreset').addEventListener('click',function(){applyPreset(el('sPart').value);});
+el('dClear').addEventListener('click',function(){
+if(!S.draft.sets.length){toast('列表已是空的');return;}
+var bak=S.draft.sets.slice();S.draft.sets=[];persist();renderLog();
+toast('已清空草稿','bad',{undo:function(){S.draft.sets=bak;persist();renderLog();}});});
+el('saveS').addEventListener('click',function(){saveSession(true);});
+el('saveStay').addEventListener('click',function(){saveSession(false);});
+el('dupLast').addEventListener('click',function(){
+var part=el('sPart').value,src=null;
+for(var i=S.sessions.length-1;i>=0;i--){if(S.sessions[i].part===part&&(S.sessions[i].sets||[]).length){src=S.sessions[i];break;}}
+if(!src){toast('暂无同部位历史记录，请点「载入标准处方」','bad');return;}
+var bak=S.draft.sets.slice();
+S.draft.sets=src.sets.map(function(t){return{id:uid(),ex:t.ex,mus:t.mus,w:t.w,r:t.r,rir:t.rir===null?1:t.rir};});
+S.draft.date=today();persist();renderLog();
+toast('已载入上次 '+src.date+' '+part+'日记录 ('+src.sets.length+' 组)','ok',
+bak.length?{undo:function(){S.draft.sets=bak;persist();renderLog();}}:null);});
+
+['hQ','hPart','hSort'].forEach(function(id){el(id).addEventListener('input',function(){
+hFilter.q=el('hQ').value;hFilter.part=el('hPart').value;hFilter.sort=el('hSort').value;renderHist();});
+el(id).addEventListener('change',function(){
+hFilter.q=el('hQ').value;hFilter.part=el('hPart').value;hFilter.sort=el('hSort').value;renderHist();});});
+el('saveView').addEventListener('click',function(){
+var nm=(hFilter.part||'全部')+(hFilter.q?('·'+hFilter.q):'');
+S.views.push({name:nm,part:hFilter.part,sort:hFilter.sort,q:hFilter.q});persist();renderHist();toast('已保存筛选','ok');});
+el('selAll').addEventListener('click',function(){S.hSel=filtered().map(function(s){return s.id;});renderHist();});
+el('selNone').addEventListener('click',function(){S.hSel=[];renderHist();});
+el('bulkDel').addEventListener('click',function(){
+if(!S.hSel.length){toast('请先勾选记录','bad');return;}
+var removed=[];S.sessions=S.sessions.filter(function(s){
+if(S.hSel.indexOf(s.id)>=0){removed.push(s);return false;}return true;});
+S.hSel=[];persist();renderAll();
+toast('已删除 '+removed.length+' 次记录','bad',{undo:function(){
+removed.forEach(function(s){S.sessions.push(s);});
+S.sessions.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});persist();renderAll();}});});
+
+el('scrim').addEventListener('click',closeDrawer);
+el('dwClose').addEventListener('click',closeDrawer);
+el('dwSave').addEventListener('click',dwSave);
+el('dwDel').addEventListener('click',dwDelete);
+el('dwDup').addEventListener('click',function(){
+var s=S.sessions.filter(function(x){return x.id===dwId;})[0];if(!s)return;
+var c=JSON.parse(JSON.stringify(s));c.id=uid();c.date=today();delete c.restored;
+c.sets.forEach(function(t){t.id=uid();});
+S.sessions.push(c);S.sessions.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
+persist();closeDrawer();renderAll();toast('已复制为今日记录','ok');});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDrawer();});
+
+el('nDate').addEventListener('change',renderNutri);
+el('nSave').addEventListener('click',function(){
+var d=el('nDate').value||today();
+S.food[d]={p:n(el('nP').value),c:n(el('nC').value),f:n(el('nF').value),w:n(el('nW').value),s:n(el('nS').value)};
+persist();renderNutri();toast('今日营养已保存','ok');});
+el('waterAdd').addEventListener('click',function(){
+var d=el('nDate').value||today(),cur=S.food[d]||{p:0,c:0,f:0,w:0,s:7};
+cur.w=n(cur.w)+1;S.food[d]=cur;persist();renderNutri();toast('💧 饮水 +1 杯 (共 '+cur.w+' 杯)','ok');});
+el('nReset').addEventListener('click',function(){
+var d=el('nDate').value||today(),bak=Object.assign({},S.food[d]||{});
+S.food[d]={p:0,c:0,f:0,w:0,s:7};persist();renderNutri();
+toast('已清零今日营养','bad',{undo:function(){S.food[d]=bak;persist();renderNutri();}});});
+
+el('bSave').addEventListener('click',function(){
+var p=S.profile,map={pH:'h',pW:'w',pBF:'bf',pA:'age',pSH:'sh',pWA:'wa',pCH:'ch',pAR:'ar',pTH:'th',pFQ:'freq',pWP:'wheyPct'};
+Object.keys(map).forEach(function(k){var v=n(el(k).value);if(v>0)p[map[k]]=v;});
+persist();renderAll();toast('身体档案与目标已更新','ok');});
+el('mAdd').addEventListener('click',function(){
+var p=S.profile;
+S.measures.push({date:today(),w:p.w,bf:p.bf,sh:p.sh,wa:p.wa,ar:p.ar,ch:p.ch,th:p.th});
+persist();renderBody();toast('已记录今日围度','ok');});
+
+el('cloudChip').addEventListener('click',function(){
+  var cc=loadCloudCfg();
+  if(cc.token&&cc.id)cloudPull(false);
+  else go('data');
+});
+el('cInitBtn').addEventListener('click',cloudInit);
+el('cPullBtn').addEventListener('click',function(){cloudPull(false);});
+el('cPushBtn').addEventListener('click',function(){cloudPush(false);});
+el('cApplyCode').addEventListener('click',function(){
+  var v=el('cBindCode').value.trim();
+  if(applyBindStr(v))renderData();
+});
+el('cCopyCode').addEventListener('click',function(){
+  var cc=loadCloudCfg();
+  if(!cc.token||!cc.id){toast('请先连接云端生成 ID','bad');return;}
+  copyText('#cloud='+cc.provider+':'+cc.token+':'+cc.id,'📱 手机绑定码已复制！发到手机粘贴即可一键连通');
+});
+el('packBtn').addEventListener('click',function(){copyText(coachPack(),'教练复盘包已复制，可直接粘贴给AI');});
+el('packCopy').addEventListener('click',function(){copyText(coachPack(),'教练复盘包已复制');});
+el('packDl').addEventListener('click',function(){download('教练数据包-'+today()+'.txt',coachPack());});
+el('expDl').addEventListener('click',function(){download('训练台备份-'+today()+'.json',JSON.stringify(S),'application/json;charset=utf-8');});
+el('expCopy').addEventListener('click',function(){copyText(JSON.stringify(S),'完整 JSON 已复制');});
+el('impPick').addEventListener('click',function(){el('impFile').click();});
+el('impFile').addEventListener('change',function(){
+var f=this.files&&this.files[0];if(!f)return;var rd=new FileReader();
+rd.onload=function(){applyImport(String(rd.result));};rd.readAsText(f);this.value='';});
+el('impPaste').addEventListener('click',function(){
+var v=el('impArea').value.trim();if(!v){toast('请先粘贴 JSON','bad');return;}
+applyImport(v);el('impArea').value='';});
+el('resetAll').addEventListener('click',function(){
+if(!window.confirm('确定重置全部数据？重置前会自动保存一份快照。'))return;
+var bak=JSON.stringify(S);
+try{localStorage.setItem(BAKPRE+Date.now(),bak);}catch(e){}
+S=defState();S.hSel=[];persist();renderAll();go('log');
+toast('已重置，可在快照列表恢复','bad');});
+window.addEventListener('hashchange',function(){
+var h=location.hash.replace('#','');if(VIEWS.indexOf(h)>=0)go(h);});}
+
+initStatic();bind();
+var h0=location.hash.replace('#','');
+if(h0.indexOf('cloud=')===0){
+  applyBindStr(h0);
+  h0='log';
+}else{
+  var cc0=loadCloudCfg();
+  if(cc0.token&&cc0.id)setTimeout(function(){cloudPull(true);},300);
+}
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'){
+    var cc=loadCloudCfg();
+    if(cc.token&&cc.id)cloudPull(true);
+  }
+});
+renderAll();
+go(VIEWS.indexOf(h0)>=0?h0:'log');
+</script>
+</body>
+</html>
