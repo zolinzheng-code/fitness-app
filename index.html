@@ -351,8 +351,11 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
         <button class="btn ghost xs" id="dupLast">载入上次同部位记录</button>
       </div>
       <div style="margin-bottom:10px">
-        <label>点选常用动作选项卡（手动输入的新动作保存后会自动加入此处）：</label>
-        <div class="pills" id="partExPills"></div>
+        <label>常用动作快捷选择（点选后可在下方调整重量/次数，再点「+ 加组」录入）：</label>
+        <div class="row" style="align-items:center">
+          <div class="f2"><select id="exQuickSel"></select></div>
+          <div class="fa"><button type="button" class="btn danger xs hide" id="exCustomDel" title="从常用动作移除">移除自定义</button></div>
+        </div>
       </div>
       <div class="sym2" style="margin-bottom:8px">
         <div><label>动作名称（可选或手写新动作）</label><input list="exList" id="iEx" placeholder="输入动作名自动保存为选项卡"><datalist id="exList"></datalist></div>
@@ -415,14 +418,6 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
         <span class="tag" id="nTargetTag">饮食与饮水</span>
       </div>
       <div class="rings-grid" id="nRingsGrid"></div>
-      <div class="qstrip" id="nQuickStrip">
-        <button type="button" class="qstrip-btn" data-qfood="美式/黑咖啡(1杯)" data-qgram="250"><i>☕</i>黑咖啡</button>
-        <button type="button" class="qstrip-btn" data-qfood="甜菜根粉" data-qgram="10"><i>🫜</i>甜菜根粉</button>
-        <button type="button" class="qstrip-btn" data-qfood="蓝莓" data-qgram="80"><i>🫐</i>浆果</button>
-        <button type="button" class="qstrip-btn" data-qfood="全麦面包" data-qgram="100"><i>🍞</i>慢碳</button>
-        <button type="button" class="qstrip-btn" data-qfood="乳清蛋白粉" data-qgram="30"><i>🥛</i>蛋白粉</button>
-        <button type="button" class="qstrip-btn" id="waterAdd"><i>💧</i>+250ml水</button>
-      </div>
     </div>
 
     <!-- Food Item + Gram Logger Panel -->
@@ -434,8 +429,11 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
         </div>
       </div>
       <div style="margin-bottom:10px">
-        <label>⚡ 点选常吃食物选项卡（手写新食物会自动保存为选项卡）：</label>
-        <div class="pills" id="quickRow"></div>
+        <label>常用食物快捷下拉（点选后可在下方调整克重，再点「+ 记录进食并累加」）：</label>
+        <div class="row" style="align-items:center">
+          <div class="f2"><select id="fQuickSel"></select></div>
+          <div class="fa"><button type="button" class="btn danger xs hide" id="fCustomDel" title="从常用食物移除">移除自定义</button></div>
+        </div>
       </div>
       <div class="sym3">
         <div>
