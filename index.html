@@ -1810,43 +1810,35 @@ el('nP').value=f.p||'';el('nC').value=f.c||'';el('nF').value=f.f||'';
 el('nW').value=f.w||'';el('nS').value=f.s||'';
 el('nTargetTag').textContent='重组目标：'+tg.kcal+' kcal · 蛋白 '+tg.p+'g · 碳水 '+tg.c+'g · 脂肪 '+tg.f+'g';
 
-var qr=el('quickRow');clear(qr);
-var curFn=(el('fName').value||'').trim();
-QUICK.forEach(function(q){
-  var b=document.createElement('button');b.type='button';
-  b.className='pillbtn'+(curFn===q.n?' on':'');
-  b.textContent=q.n+' ('+q.g+'g)';
-  b.addEventListener('click',function(){
-    el('fName').value=q.n;
-    el('fGram').value=q.g;
-    updateFoodPreview();
-    renderNutri();
+var fsel=el('fQuickSel');
+if(fsel){
+  clear(fsel);
+  var fo0=document.createElement('option');fo0.value='';fo0.textContent='-- 点选常吃食物 / 咖啡 (或下方自由输入) --';
+  fsel.appendChild(fo0);
+  var curFn=(el('fName').value||'').trim(), isCustomF=false;
+  var fg1=document.createElement('optgroup');fg1.label='📌 内置常吃食物 & 咖啡';
+  QUICK.forEach(function(q){
+    var o=document.createElement('option');
+    o.value='std:'+q.n;o.dataset.n=q.n;o.dataset.g=q.g;
+    o.textContent=q.n+' (默认 '+q.g+'g)';
+    if(curFn===q.n)o.selected=true;
+    fg1.appendChild(o);
   });
-  qr.appendChild(b);
-});
-(S.customFoods||[]).forEach(function(cf,cIdx){
-  if(!cf||!cf.n)return;
-  var b=document.createElement('button');b.type='button';
-  b.className='pillbtn'+(curFn===cf.n?' on':'');
-  var sp=document.createElement('span');
-  sp.textContent='★ '+cf.n+' ('+(cf.g||100)+'g)';
-  b.appendChild(sp);
-  var dx=document.createElement('span');
-  dx.className='del-x';dx.textContent='×';
-  dx.addEventListener('click',function(ev){
-    ev.stopPropagation();
-    S.customFoods.splice(cIdx,1);
-    persist();renderNutri();
-  });
-  b.appendChild(dx);
-  b.addEventListener('click',function(){
-    el('fName').value=cf.n;
-    el('fGram').value=cf.g||100;
-    updateFoodPreview();
-    renderNutri();
-  });
-  qr.appendChild(b);
-});
+  fsel.appendChild(fg1);
+  if((S.customFoods||[]).length){
+    var fg2=document.createElement('optgroup');fg2.label='★ 我的自定义食物';
+    (S.customFoods||[]).forEach(function(cf,cIdx){
+      if(!cf||!cf.n)return;
+      var o=document.createElement('option');
+      o.value='cus:'+cIdx;o.dataset.n=cf.n;o.dataset.g=cf.g||100;
+      o.textContent='★ '+cf.n+' (默认 '+(cf.g||100)+'g)';
+      if(curFn===cf.n){o.selected=true;isCustomF=true;}
+      fg2.appendChild(o);
+    });
+    if(fg2.children.length)fsel.appendChild(fg2);
+  }
+  if(el('fCustomDel'))el('fCustomDel').classList.toggle('hide',!isCustomF);
+}
 updateFoodPreview();
 
 /* Render today's eaten food items table */
@@ -2148,6 +2140,26 @@ if(el('bnavFab')){
     }
   });
 }
+if(el('exQuickSel')){
+  el('exQuickSel').addEventListener('change',function(){
+    var opt=this.options[this.selectedIndex];
+    if(!opt||!opt.value)return;
+    selectExOption(opt.dataset.ex,opt.dataset.mus,n(opt.dataset.w),n(opt.dataset.r),n(opt.dataset.rir));
+  });
+}
+if(el('exCustomDel')){
+  el('exCustomDel').addEventListener('click',function(){
+    var sel=el('exQuickSel');if(!sel)return;
+    var v=sel.value||'';
+    if(v.indexOf('cus:')!==0)return;
+    var idx=parseInt(v.slice(4),10), part=el('sPart').value;
+    if(!isNaN(idx)&&S.customEx&&S.customEx[part]){
+      var rm=S.customEx[part].splice(idx,1)[0];
+      persist();renderPartPills(part);
+      toast('已移除常用动作 '+(rm?rm.ex:''));
+    }
+  });
+}
 el('iEx').addEventListener('change',function(){var m=EXMAP[this.value];if(m)el('iMus').value=m;syncConv();renderPartPills(el('sPart').value);});
 el('iEx').addEventListener('input',syncConv);
 el('rirPills').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
@@ -2230,14 +2242,30 @@ el('gramPills').addEventListener('click',function(e){
   b.classList.add('on');
   updateFoodPreview();
 });
-el('fAddBtn').addEventListener('click',function(){addFoodItem();});
-if(el('nQuickStrip')){
-  el('nQuickStrip').addEventListener('click',function(e){
-    var b=e.target.closest('[data-qfood]');
-    if(!b)return;
-    addFoodItem(b.dataset.qfood,n(b.dataset.qgram)||100);
+if(el('fQuickSel')){
+  el('fQuickSel').addEventListener('change',function(){
+    var opt=this.options[this.selectedIndex];
+    if(!opt||!opt.value){el('fCustomDel').classList.add('hide');return;}
+    el('fName').value=opt.dataset.n||'';
+    el('fGram').value=opt.dataset.g||100;
+    if(el('fCustomDel'))el('fCustomDel').classList.toggle('hide',opt.value.indexOf('cus:')!==0);
+    updateFoodPreview();
   });
 }
+if(el('fCustomDel')){
+  el('fCustomDel').addEventListener('click',function(){
+    var sel=el('fQuickSel');if(!sel)return;
+    var v=sel.value||'';
+    if(v.indexOf('cus:')!==0)return;
+    var idx=parseInt(v.slice(4),10);
+    if(!isNaN(idx)&&S.customFoods){
+      var rm=S.customFoods.splice(idx,1)[0];
+      persist();renderNutri();
+      toast('已移除常用食物 '+(rm?rm.n:''));
+    }
+  });
+}
+el('fAddBtn').addEventListener('click',function(){addFoodItem();});
 el('nSave').addEventListener('click',function(){
 var d=el('nDate').value||today(),prevItems=(S.food[d]&&S.food[d].items)?S.food[d].items:[];
 S.food[d]={p:n(el('nP').value),c:n(el('nC').value),f:n(el('nF').value),w:n(el('nW').value),s:n(el('nS').value),items:prevItems};
