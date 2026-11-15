@@ -381,71 +381,87 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
       <div class="hint" id="convHint" style="margin-top:6px"></div>
     </div>
 
-    <div class="card" style="margin-top:12px">
+    <div class="card" id="draftCard" style="margin-top:12px">
       <div class="ch">
-        <h2>今日已录组次明细 <span class="tag" id="dCount">0 组</span></h2>
-        <div class="row">
+        <h2>✅ 今日已完成组次 <span class="tag" id="dCount">0 组</span></h2>
+        <div class="row" id="dActions">
           <button class="btn cool sm" id="saveS">✓ 保存并看复盘</button>
           <button class="btn ghost sm" id="saveStay">仅保存</button>
           <button class="btn danger xs" id="dClear">清空</button>
         </div>
       </div>
-      <div class="tw">
+      <div class="tw hide" id="dTableWrap">
         <table>
           <thead><tr><th></th><th>动作</th><th>肌群</th><th>负荷 (可微调)</th><th>次数</th><th>RIR</th><th>1RM / 强度</th><th>判定</th><th>操作</th></tr></thead>
           <tbody id="dBody"></tbody>
         </table>
       </div>
-      <div id="dEmpty" class="empty" style="margin-top:8px">对照上方「📋 今日训练计划参考」，在「✍️ 录入今日实际训练」中点选或输入你今天实际完成的动作与组次。</div>
+      <div id="dEmpty" class="empty" style="margin-top:4px">暂无今日记录 — 在上方点选或输入动作并点击「+ 加 1 组 / + 连加 3 组」，完成的组次会实时累计在这里。</div>
     </div>
 
-    <div class="grid g2" style="margin-top:12px">
+    <div class="grid g2" id="dCheckGrid" style="margin-top:12px">
       <div class="card"><div class="ch"><h2>本课容量核查 <span class="tag">单肌群 8–12 组最佳</span></h2></div><div id="dVol"></div></div>
       <div class="card"><div class="ch"><h2>本课刺激质量</h2></div><div class="grid g4" id="dQual"></div>
         <div class="note li" id="dQualNote"></div></div>
     </div>
   </div>
 
-  <!-- VIEW 2: NUTRITION -->
+  <!-- VIEW 2: NUTRITION (训记-Style Rings + Food Gram Logger + Cloud History) -->
   <div class="view hide" id="v-nutri">
-    <!-- New Food Item + Gram Logger Panel -->
+    <!-- 训记-Style 4 Circular Rings Card -->
+    <div class="rings-card">
+      <div class="rings-hd">
+        <div class="rings-kcal" id="nRingKcal">0<span>/ 2150 大卡</span></div>
+        <span class="tag" id="nTargetTag">饮食与饮水</span>
+      </div>
+      <div class="rings-grid" id="nRingsGrid"></div>
+      <div class="qstrip" id="nQuickStrip">
+        <button type="button" class="qstrip-btn" data-qfood="美式/黑咖啡(1杯)" data-qgram="250"><i>☕</i>黑咖啡</button>
+        <button type="button" class="qstrip-btn" data-qfood="甜菜根粉" data-qgram="10"><i>🫜</i>甜菜根粉</button>
+        <button type="button" class="qstrip-btn" data-qfood="蓝莓" data-qgram="80"><i>🫐</i>浆果</button>
+        <button type="button" class="qstrip-btn" data-qfood="全麦面包" data-qgram="100"><i>🍞</i>慢碳</button>
+        <button type="button" class="qstrip-btn" data-qfood="乳清蛋白粉" data-qgram="30"><i>🥛</i>蛋白粉</button>
+        <button type="button" class="qstrip-btn" id="waterAdd"><i>💧</i>+250ml水</button>
+      </div>
+    </div>
+
+    <!-- Food Item + Gram Logger Panel -->
     <div class="card accent">
       <div class="ch">
-        <h2>🥗 今日进食记录面板 <span class="tag" id="nTargetTag">—</span></h2>
+        <h2>🥗 今日进食记录面板</h2>
         <div class="row">
-          <button class="btn ghost xs" id="waterAdd">💧 +1杯水(250ml)</button>
           <button class="btn danger xs" id="nReset">清零今日</button>
         </div>
       </div>
       <div style="margin-bottom:10px">
-        <label>⚡ 点选常吃食物选项卡（含你的高频果蔬/慢碳/蛋白，手写新食物也会自动保存）：</label>
+        <label>⚡ 点选常吃食物选项卡（手写新食物会自动保存为选项卡）：</label>
         <div class="pills" id="quickRow"></div>
       </div>
       <div class="sym3">
         <div>
           <label>食物名称（可选或自由输入）</label>
-          <input list="foodDataList" id="fName" placeholder="如：全麦面包 / 甜菜根粉 / 蓝莓">
+          <input list="foodDataList" id="fName" placeholder="如：全麦面包 / 黑咖啡 / 蓝莓">
           <datalist id="foodDataList"></datalist>
         </div>
         <div>
-          <label>食用克重 (g / ml)</label>
+          <label>食用克重 / 容量 (g / ml)</label>
           <input type="number" id="fGram" inputmode="decimal" step="5" placeholder="100" value="100">
         </div>
         <div class="span2-sm">
           <label>操作</label>
-          <button class="btn cool" id="fAddBtn" style="width:100%">+ 记录进食并累加营养</button>
+          <button class="btn cool" id="fAddBtn" style="width:100%">+ 记录进食并累加</button>
         </div>
       </div>
       <div class="row" style="margin-top:8px;align-items:center">
         <span style="font-size:11.5px;color:var(--ink-3);font-weight:700">快捷克重：</span>
         <div class="pills" id="gramPills">
           <button type="button" class="pillbtn" data-g="10">10g</button>
+          <button type="button" class="pillbtn" data-g="15">15g</button>
           <button type="button" class="pillbtn" data-g="30">30g</button>
-          <button type="button" class="pillbtn" data-g="50">50g</button>
           <button type="button" class="pillbtn" data-g="80">80g</button>
           <button type="button" class="pillbtn on" data-g="100">100g</button>
           <button type="button" class="pillbtn" data-g="150">150g</button>
-          <button type="button" class="pillbtn" data-g="200">200g</button>
+          <button type="button" class="pillbtn" data-g="250">250ml</button>
         </div>
       </div>
       <div class="note cy" id="fPreview" style="margin-top:8px">点选上方食物或输入名称与克重，自动显示百克主要营养素并折算累加。</div>
@@ -461,14 +477,14 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
             <tbody id="fListBody"></tbody>
           </table>
         </div>
-        <div id="fEmpty" class="empty" style="padding:14px">今日还没有记录具体食物。在上方点选「甜菜根粉 / 蓝莓 / 全麦面包 / 贝贝南瓜」等填入克重即可记录。</div>
+        <div id="fEmpty" class="empty" style="padding:14px">今日还没有记录具体食物。点选「黑咖啡 / 甜菜根粉 / 蓝莓 / 全麦面包」填入克重即可记录。</div>
       </div>
     </div>
 
     <!-- Symmetrical Daily Totals & Water/Sleep Panel -->
     <div class="card" style="margin-top:12px">
       <div class="ch">
-        <h2>今日营养总计与恢复（随进食清单自动汇总，也可直接微调）</h2>
+        <h2>今日营养总计与恢复（支持直接微调）</h2>
         <button class="btn cool sm" id="nSave">保存总计</button>
       </div>
       <div class="sym3" style="margin-bottom:8px">
@@ -488,6 +504,11 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
       <div class="grid g4" id="nNums"></div>
       <div style="margin-top:11px" id="nBars"></div>
       <div class="note" id="nNote"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h2>📅 近 7 天已同步营养与进食台账 <span class="tag">点击日期切换查看</span></h2></div>
+      <div id="nRecentList"></div>
     </div>
 
     <div class="grid g2" style="margin-top:12px">
