@@ -2383,7 +2383,9 @@ try{localStorage.setItem(BAKPRE+Date.now(),bak);}catch(e){}
 S=defState();S.hSel=[];persist();renderAll();go('log');
 toast('已重置，可在快照列表恢复','bad');});
 window.addEventListener('hashchange',function(){
-var h=location.hash.replace('#','');if(VIEWS.indexOf(h)>=0)go(h);});}
+var h=location.hash.replace('#','');
+if(h.indexOf('cloud=')===0){applyBindStr(h);go('log');return;}
+if(VIEWS.indexOf(h)>=0)go(h);});}
 
 initStatic();bind();
 var h0=location.hash.replace('#','');
