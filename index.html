@@ -483,7 +483,10 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
     <div class="card" style="margin-top:12px">
       <div class="ch">
         <h2>今日营养总计与恢复（支持直接微调）</h2>
-        <button class="btn cool sm" id="nSave">保存总计</button>
+        <div class="row">
+          <button class="btn ghost sm" id="waterAdd">💧 +1杯水</button>
+          <button class="btn cool sm" id="nSave">保存总计</button>
+        </div>
       </div>
       <div class="sym3" style="margin-bottom:8px">
         <div><label>记录日期</label><input type="date" id="nDate"></div>
@@ -793,18 +796,18 @@ var PATTERN={'上斜史密斯杠铃卧推':'上斜推','上斜哑铃卧推30°':
 '平板杠铃卧推':'平推','平板哑铃卧推':'平推','哑铃卧推':'平推'};
 
 var QUICK=[
+  {n:'星巴克高蛋白拿铁(热)',g:591},{n:'美式/黑咖啡',g:350},{n:'原味拿铁(全脂无糖)',g:473},
   {n:'甜菜根粉',g:10},{n:'蓝莓',g:80},{n:'树莓',g:80},{n:'黑莓',g:80},
   {n:'全麦面包',g:100},{n:'彩椒',g:150},{n:'小番茄',g:150},{n:'贝贝南瓜',g:150},
-  {n:'美式/黑咖啡(1杯)',g:250},{n:'咖啡粉/浓缩(g)',g:18},{n:'冰拿铁(含200ml纯奶)',g:250},
   {n:'乳清蛋白粉',g:30},{n:'鸡胸肉(生)',g:150},{n:'瘦牛肉(生)',g:120},{n:'鱼虾/海鲜(生)',g:150},
   {n:'全鸡蛋(1个≈50g)',g:100},{n:'熟米饭',g:150},{n:'燕麦片',g:60},{n:'无糖酸奶',g:135},{n:'纯牛奶',g:250}
 ];
 
 /* Per-100g Nutrient Database: p=protein(g), c=carb(g), f=fat(g), defG=default serving(g), tag=highlight */
 var FOOD_DB={
-  '美式/黑咖啡(1杯)':{p:0,c:0,f:0,defG:250,isCoffee:1,tag:'0卡路里！含咖啡因提神减脂，水份直接计入当日饮水(250ml≈1杯)'},
-  '咖啡粉/浓缩(g)':{p:0,c:0,f:0,defG:18,tag:'记干粉克重(约18g=1份双份浓缩)，0热量；冲泡的水请另外点「+1杯水」'},
-  '冰拿铁(含200ml纯奶)':{p:2.6,c:3.8,f:2.9,defG:250,tag:'浓缩+纯奶(250g总重≈200ml牛奶热量)：蛋白6.5g/碳水9.5g/脂肪7.2g'},
+  '星巴克高蛋白拿铁(热)':{p:4.4,c:3.5,f:1.6,defG:591,tag:'整杯称重模糊估算 (超大杯热饮591ml≈蛋白26g / 碳水20.7g / 脂肪9.5g / 272kcal)'},
+  '美式/黑咖啡':{p:0,c:0.2,f:0,defG:350,tag:'整杯称重直接记即可 (≈1kcal/100ml，几乎0热量，无需扣水重)'},
+  '原味拿铁(全脂无糖)':{p:2.3,c:3.4,f:2.6,defG:473,tag:'整杯称重模糊估算 (大杯473ml≈蛋白10.9g / 碳水16.1g / 脂肪12.3g / 218kcal)'},
   '甜菜根粉':{p:10.0,c:70.0,f:1.0,defG:10,tag:'天然硝酸盐·提升NO泵感与耐力 (每100g: 碳水70g / 蛋白10g / 脂肪1g)'},
   '蓝莓':{p:0.7,c:14.5,f:0.3,defG:80,tag:'花青素抗氧化·低GI浆果 (每100g: 碳水14.5g / 蛋白0.7g)'},
   '树莓':{p:1.2,c:11.9,f:0.7,defG:80,tag:'高膳食纤维(6.5g)·极低糖浆果 (每100g: 碳水11.9g / 蛋白1.2g)'},
@@ -1339,46 +1342,38 @@ function renderRefPlan(part){
 }
 
 function renderPartPills(part){
-  var host=el('partExPills');if(!host)return;clear(host);
-  var rows=activePreset(part);
-  var seen={};
-  var curEx=el('iEx').value.trim();
+  var sel=el('exQuickSel');if(!sel)return;clear(sel);
+  var opt0=document.createElement('option');opt0.value='';opt0.textContent='-- 点选'+part+'日常用动作 (或直接下方输入) --';
+  sel.appendChild(opt0);
+  var rows=activePreset(part), seen={}, curEx=el('iEx').value.trim(), isCustomSel=false;
+  var g1=document.createElement('optgroup');g1.label='📌 本日标准动作';
   rows.forEach(function(r){
     seen[r[0]]=1;
-    var b=document.createElement('button');b.type='button';
-    b.className='pillbtn'+(curEx===r[0]?' on':'');
-    b.dataset.ex=r[0];
-    b.textContent=r[0]+' ('+wLabel(r[0],r[2])+'×'+r[3]+')';
-    b.addEventListener('click',function(){
-      selectExOption(r[0],r[1],r[2],r[3],r[4]);
-    });
-    host.appendChild(b);
+    var o=document.createElement('option');
+    o.value='std:'+r[0];
+    o.dataset.ex=r[0];o.dataset.mus=r[1];o.dataset.w=r[2];o.dataset.r=r[3];o.dataset.rir=r[4];
+    o.textContent=r[0]+' · 参考 '+wLabel(r[0],r[2])+'×'+r[3];
+    if(curEx===r[0])o.selected=true;
+    g1.appendChild(o);
   });
+  sel.appendChild(g1);
   if(!S.customEx)S.customEx={'胸':[],'腿':[],'肩':[],'背':[]};
   var cList=S.customEx[part]||[];
-  cList.forEach(function(c,cIdx){
-    if(!c||!c.ex||seen[c.ex])return;
-    seen[c.ex]=1;
-    var b=document.createElement('button');b.type='button';
-    b.className='pillbtn'+(curEx===c.ex?' on':'');
-    b.dataset.ex=c.ex;
-    var sp=document.createElement('span');
-    sp.textContent='★ '+c.ex+' ('+wLabel(c.ex,c.w)+'×'+c.r+')';
-    b.appendChild(sp);
-    var dx=document.createElement('span');
-    dx.className='del-x';dx.textContent='×';dx.title='移除此自定义动作';
-    dx.addEventListener('click',function(ev){
-      ev.stopPropagation();
-      S.customEx[part].splice(cIdx,1);
-      persist();renderPartPills(part);
-      toast('已移除常用动作 '+c.ex);
+  if(cList.length){
+    var g2=document.createElement('optgroup');g2.label='★ 我的自定义动作';
+    cList.forEach(function(c,cIdx){
+      if(!c||!c.ex||seen[c.ex])return;
+      seen[c.ex]=1;
+      var o=document.createElement('option');
+      o.value='cus:'+cIdx;
+      o.dataset.ex=c.ex;o.dataset.mus=c.mus;o.dataset.w=c.w;o.dataset.r=c.r;o.dataset.rir=c.rir;
+      o.textContent='★ '+c.ex+' · 上次 '+wLabel(c.ex,c.w)+'×'+c.r;
+      if(curEx===c.ex){o.selected=true;isCustomSel=true;}
+      g2.appendChild(o);
     });
-    b.appendChild(dx);
-    b.addEventListener('click',function(){
-      selectExOption(c.ex,c.mus,c.w,c.r,c.rir);
-    });
-    host.appendChild(b);
-  });
+    if(g2.children.length)sel.appendChild(g2);
+  }
+  if(el('exCustomDel'))el('exCustomDel').classList.toggle('hide',!isCustomSel);
 }
 
 function syncConv(){
@@ -1766,25 +1761,21 @@ function calcFoodMacros(name,grams){
   var c=Math.round(info.c*g/100*10)/10;
   var f=Math.round(info.f*g/100*10)/10;
   var kcal=Math.round(p*4+c*4+f*9);
-  return{known:true,g:g,p:p,c:c,f:f,kcal:kcal,p100:p100,c100:info.c,f100:info.f,isCoffee:!!info.isCoffee,tag:info.tag};
+  return{known:true,g:g,p:p,c:c,f:f,kcal:kcal,p100:p100,c100:info.c,f100:info.f,tag:info.tag};
 }
 
 function updateFoodPreview(){
   var prev=el('fPreview');if(!prev)return;
   var nm=(el('fName').value||'').trim(), g=n(el('fGram').value)||100;
   if(!nm){
-    prev.textContent='💡 点选上方常吃食物或输入食物与克重，自动折算累加。☕ 黑咖啡记「250ml(1杯)」或「18g咖啡粉」均可，0热量且AI能识别水分！';
+    prev.textContent='💡 下拉选择常吃食物（或直接输入名称）并调整克重/容量，再点击「+ 记录进食并累加」。☕ 咖啡/拿铁直接按整杯总重估算即可，无需拆水重。';
     return;
   }
   var m=calcFoodMacros(nm,g);
   if(m.known){
-    if(m.isCoffee){
-      prev.innerHTML='☕ <b>'+nm+' ('+g+'ml)</b>：<b>0 kcal</b>（纯黑咖啡几乎零热量），记录后将自动计入 <b>+'+Math.max(1,Math.round(g/250))+' 杯饮水</b> 并供 AI 分析咖啡因与水合状态。';
-    }else{
-      prev.innerHTML='📊 <b>'+nm+'</b> 百克基准：每 100g 含 <b>碳水 '+m.c100+'g · 蛋白 '+m.p100+'g · 脂肪 '+m.f100+'g</b><br>👉 当前 <b>'+g+'g</b> 折算：<b>碳水 '+m.c+'g · 蛋白 '+m.p+'g · 脂肪 '+m.f+'g · 约 '+m.kcal+' kcal</b>（'+m.tag.split(' (')[0]+'）';
-    }
+    prev.innerHTML='📊 <b>'+nm+'</b> 百克/百毫升基准：每 100g 含 <b>碳水 '+m.c100+'g · 蛋白 '+m.p100+'g · 脂肪 '+m.f100+'g</b><br>👉 当前 <b>'+g+'g</b> 折算：<b>碳水 '+m.c+'g · 蛋白 '+m.p+'g · 脂肪 '+m.f+'g · 约 '+m.kcal+' kcal</b>（'+m.tag.split(' (')[0]+'）';
   }else{
-    prev.innerHTML='📝 <b>'+nm+' ('+g+'g)</b>：未内置百克参数，点击记录后将保存「食物名称 + 克重」至今日清单并加入常用食物选项卡，供 AI 营养复盘分析。';
+    prev.innerHTML='📝 <b>'+nm+' ('+g+'g)</b>：未内置百克参数，点击记录后将保存「食物名称 + 克重」至今日清单并加入常用下拉，供 AI 营养复盘分析。';
   }
 }
 
@@ -1801,17 +1792,15 @@ function addFoodItem(customName,customGram){
   cur.p=Math.round((n(cur.p)+m.p)*10)/10;
   cur.c=Math.round((n(cur.c)+m.c)*10)/10;
   cur.f=Math.round((n(cur.f)+m.f)*10)/10;
-  var waterAdd=m.isCoffee?Math.max(1,Math.round(g/250)):0;
-  if(waterAdd)cur.w=n(cur.w)+waterAdd;
   S.food[d]=cur;
-  /* Save custom food to quick tabs if not already in QUICK */
+  /* Save custom food to quick dropdown if not already in QUICK */
   var inQuick=QUICK.some(function(q){return q.n===nm;});
   if(!S.customFoods)S.customFoods=[];
   if(!inQuick && !S.customFoods.some(function(x){return x.n===nm;})){
     S.customFoods.push({n:nm,g:g});
   }
   persist();renderNutri();
-  toast('已记录：'+nm+' '+g+(m.isCoffee?'ml (0kcal, 饮水+'+waterAdd+'杯)':'g'+(m.known?(' (碳水+'+m.c+'g 蛋白+'+m.p+'g)'):'')),'ok');
+  toast('已记录：'+nm+' '+g+'g'+(m.known?(' (碳水+'+m.c+'g 蛋白+'+m.p+'g)'):''),'ok');
 }
 
 function renderNutri(){
