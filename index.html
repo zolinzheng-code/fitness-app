@@ -31,22 +31,63 @@ font-size:14.5px;line-height:1.5;-webkit-text-size-adjust:100%;min-height:100vh}
 ::-webkit-scrollbar-track{background:var(--steel-850)}
 ::-webkit-scrollbar-thumb{background:var(--steel-600);border-radius:99px}
 
-/* Top Navigation (Compact Mobile-First, No Clipped Title) */
-.top{position:sticky;top:0;z-index:60;margin:0 -14px;padding:8px 14px 0;
+/* Top Navigation (Clean, Zero Clipped Elements, Safe-Area Aware) */
+.top{position:sticky;top:0;z-index:60;margin:0 -14px;padding:max(8px,env(safe-area-inset-top)) 14px 0;
 background:rgba(11,14,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--steel-700)}
-.bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;margin-bottom:2px}
-.bar-r{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%;justify-content:space-between}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:6px 0 9px;align-items:center}
+.tabs button{flex:0 0 auto;min-height:34px;padding:6px 13px;border-radius:99px;cursor:pointer;
+background:var(--steel-800);border:1px solid var(--steel-600);color:var(--ink-2);font:700 12.5px/1 inherit;transition:.15s}
+.tabs button:hover{color:var(--ink);border-color:var(--steel-500)}
+.tabs button.on{background:var(--grad-hot);color:#160b06;border-color:transparent}
 .chip{display:inline-flex;gap:6px;align-items:center;font-size:11.5px;font-weight:700;
 padding:5px 10px;border-radius:99px;border:1px solid var(--steel-600);background:var(--steel-800);color:var(--ink-2)}
 .chip.ok{border-color:rgba(61,220,132,.45);color:var(--green);background:rgba(61,220,132,.09)}
 .chip.warn{border-color:rgba(255,176,32,.5);color:var(--amber);background:rgba(255,176,32,.1)}
 .chip.bad{border-color:rgba(255,71,87,.5);color:var(--red);background:rgba(255,71,87,.1)}
 .dot{width:6px;height:6px;border-radius:99px;background:currentColor}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding:6px 0 9px}
-.tabs button{flex:0 0 auto;min-height:34px;padding:6px 13px;border-radius:99px;cursor:pointer;
-background:var(--steel-800);border:1px solid var(--steel-600);color:var(--ink-2);font:700 12.5px/1 inherit;transition:.15s}
-.tabs button:hover{color:var(--ink);border-color:var(--steel-500)}
-.tabs button.on{background:var(--grad-hot);color:#160b06;border-color:transparent}
+
+/* 训记-Style Circular Macro Rings & Quick Action Strip */
+.rings-card{background:var(--steel-800);border:1px solid var(--steel-700);border-radius:var(--r-lg);padding:14px;box-shadow:var(--sh-1);margin-bottom:12px}
+.rings-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.rings-kcal{font-size:20px;font-weight:900;color:var(--ink);font-variant-numeric:tabular-nums}
+.rings-kcal span{font-size:12px;font-weight:600;color:var(--ink-3);margin-left:4px}
+.rings-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;text-align:center}
+.ring-box{display:flex;flex-direction:column;align-items:center}
+.ring-svg{width:68px;height:68px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--steel-700);stroke-width:5.5}
+.ring-fg{fill:none;stroke-width:5.5;stroke-linecap:round;transition:stroke-dashoffset .4s ease}
+.ring-wrap{position:relative;width:68px;height:68px;display:grid;place-items:center}
+.ring-wrap svg{position:absolute;inset:0}
+.ring-val{position:relative;text-align:center;line-height:1.15}
+.ring-val b{display:block;font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.ring-val span{display:block;font-size:9.5px;color:var(--ink-3)}
+.ring-lbl{font-size:11px;font-weight:700;color:var(--ink-2);margin-top:5px}
+.ring-pct{font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.qstrip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--steel-700)}
+@media(max-width:460px){.qstrip{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.qstrip-btn{background:var(--steel-750);border:1px solid var(--steel-600);border-radius:10px;padding:7px 4px;cursor:pointer;text-align:center;color:var(--ink-2);font:700 11px/1.2 inherit;transition:.15s}
+.qstrip-btn:hover,.qstrip-btn:active{border-color:var(--green);color:var(--green)}
+.qstrip-btn i{display:block;font-style:normal;font-size:16px;margin-bottom:3px}
+
+/* 训记-Style Mobile Floating Bottom Nav Dock */
+.bnav{display:none}
+@media(max-width:760px){
+  .top{display:none}
+  .shell{padding-top:max(10px,env(safe-area-inset-top));padding-bottom:96px}
+  .bnav{display:flex;position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:75;
+    gap:8px;align-items:center;pointer-events:none}
+  .bnav-pill{flex:1;display:flex;align-items:center;justify-content:space-around;
+    background:rgba(22,28,40,.95);backdrop-filter:blur(16px);border:1px solid var(--steel-600);
+    border-radius:99px;padding:5px 6px;box-shadow:var(--sh-2);pointer-events:auto}
+  .bnav-pill button{background:transparent;border:0;color:var(--ink-3);cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 8px;border-radius:99px;font:700 10.5px/1 inherit;transition:.15s}
+  .bnav-pill button svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .bnav-pill button.on{background:var(--steel-700);color:var(--green)}
+  .bnav-fab{width:54px;height:54px;flex:0 0 auto;border-radius:99px;border:0;cursor:pointer;
+    background:linear-gradient(135deg,#3DDC84,#22C55E);color:#052e16;font:900 12px/1.1 inherit;
+    box-shadow:0 8px 24px rgba(61,220,132,.35);pointer-events:auto;display:grid;place-items:center}
+  .toasts{bottom:84px}
+}
 
 /* Layout & Cards */
 .view{padding-top:12px}
