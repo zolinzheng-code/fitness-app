@@ -690,7 +690,7 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
     <button class="bn" data-v="hist"><span class="bi">📅</span><span>历史</span></button>
     <button class="bn" data-v="data"><span class="bi">☁️</span><span>同步</span></button>
   </div>
-  <button class="bnav-cta" id="bnavFab">+ 记1组</button>
+  <button class="bnav-fab" id="bnavFab">+ 记1组</button>
 </nav>
 
 <!-- Drawer for editing historical session -->
@@ -1424,6 +1424,9 @@ renderPartPills(el('sPart').value);
 var tb=el('dBody');clear(tb);var sets=S.draft.sets||[];
 el('dCount').textContent=sets.length+' 组';
 el('dEmpty').classList.toggle('hide',sets.length>0);
+if(el('dTableWrap'))el('dTableWrap').classList.toggle('hide',sets.length===0);
+if(el('dClear'))el('dClear').classList.toggle('hide',sets.length===0);
+if(el('dCheckGrid'))el('dCheckGrid').classList.toggle('hide',sets.length===0);
 
 sets.forEach(function(t,idx){
 tb.insertAdjacentHTML('beforeend',T.drow);var tr=tb.lastElementChild,j=judge(t);
@@ -1765,26 +1768,31 @@ function calcFoodMacros(name,grams){
   var c=Math.round(info.c*g/100*10)/10;
   var f=Math.round(info.f*g/100*10)/10;
   var kcal=Math.round(p*4+c*4+f*9);
-  return{known:true,g:g,p:p,c:c,f:f,kcal:kcal,p100:p100,c100:info.c,f100:info.f,tag:info.tag};
+  return{known:true,g:g,p:p,c:c,f:f,kcal:kcal,p100:p100,c100:info.c,f100:info.f,isCoffee:!!info.isCoffee,tag:info.tag};
 }
 
 function updateFoodPreview(){
   var prev=el('fPreview');if(!prev)return;
   var nm=(el('fName').value||'').trim(), g=n(el('fGram').value)||100;
   if(!nm){
-    prev.textContent='💡 点选上方常吃食物选项卡或直接输入食物名称与克重，自动显示百克主要营养并折算累加。';
+    prev.textContent='💡 点选上方常吃食物或输入食物与克重，自动折算累加。☕ 黑咖啡记「250ml(1杯)」或「18g咖啡粉」均可，0热量且AI能识别水分！';
     return;
   }
   var m=calcFoodMacros(nm,g);
   if(m.known){
-    prev.innerHTML='📊 <b>'+nm+'</b> 百克基准：每 100g 含 <b>碳水 '+m.c100+'g · 蛋白 '+m.p100+'g · 脂肪 '+m.f100+'g</b><br>👉 当前 <b>'+g+'g</b> 折算：<b>碳水 '+m.c+'g · 蛋白 '+m.p+'g · 脂肪 '+m.f+'g · 约 '+m.kcal+' kcal</b>（'+m.tag.split(' (')[0]+'）';
+    if(m.isCoffee){
+      prev.innerHTML='☕ <b>'+nm+' ('+g+'ml)</b>：<b>0 kcal</b>（纯黑咖啡几乎零热量），记录后将自动计入 <b>+'+Math.max(1,Math.round(g/250))+' 杯饮水</b> 并供 AI 分析咖啡因与水合状态。';
+    }else{
+      prev.innerHTML='📊 <b>'+nm+'</b> 百克基准：每 100g 含 <b>碳水 '+m.c100+'g · 蛋白 '+m.p100+'g · 脂肪 '+m.f100+'g</b><br>👉 当前 <b>'+g+'g</b> 折算：<b>碳水 '+m.c+'g · 蛋白 '+m.p+'g · 脂肪 '+m.f+'g · 约 '+m.kcal+' kcal</b>（'+m.tag.split(' (')[0]+'）';
+    }
   }else{
     prev.innerHTML='📝 <b>'+nm+' ('+g+'g)</b>：未内置百克参数，点击记录后将保存「食物名称 + 克重」至今日清单并加入常用食物选项卡，供 AI 营养复盘分析。';
   }
 }
 
-function addFoodItem(){
-  var nm=(el('fName').value||'').trim(), g=n(el('fGram').value);
+function addFoodItem(customName,customGram){
+  var nm=(customName!==undefined?customName:(el('fName').value||'')).trim();
+  var g=customGram!==undefined?n(customGram):n(el('fGram').value);
   if(!nm){toast('请先选择或输入食物名称','bad');return;}
   if(g<=0){toast('请填写食用克重 (g)','bad');return;}
   var d=el('nDate').value||today();
@@ -1795,6 +1803,8 @@ function addFoodItem(){
   cur.p=Math.round((n(cur.p)+m.p)*10)/10;
   cur.c=Math.round((n(cur.c)+m.c)*10)/10;
   cur.f=Math.round((n(cur.f)+m.f)*10)/10;
+  var waterAdd=m.isCoffee?Math.max(1,Math.round(g/250)):0;
+  if(waterAdd)cur.w=n(cur.w)+waterAdd;
   S.food[d]=cur;
   /* Save custom food to quick tabs if not already in QUICK */
   var inQuick=QUICK.some(function(q){return q.n===nm;});
@@ -1803,7 +1813,7 @@ function addFoodItem(){
     S.customFoods.push({n:nm,g:g});
   }
   persist();renderNutri();
-  toast('已记录：'+nm+' '+g+'g'+(m.known?(' (碳水+'+m.c+'g 蛋白+'+m.p+'g)'):''),'ok');
+  toast('已记录：'+nm+' '+g+(m.isCoffee?'ml (0kcal, 饮水+'+waterAdd+'杯)':'g'+(m.known?(' (碳水+'+m.c+'g 蛋白+'+m.p+'g)'):'')),'ok');
 }
 
 function renderNutri(){
