@@ -1074,15 +1074,36 @@ function cloudPull(silent){
       if(fobj&&fobj.content)remote=JSON.parse(fobj.content);
     }
     if(!remote||(!remote.sessions&&!remote.profile))throw new Error('云端无有效数据');
-    if(!silent || (remote.updatedAt && remote.updatedAt > (S.updatedAt||0)) || (remote.sessions && remote.sessions.length > S.sessions.length) || JSON.stringify(remote.aiAdvice)!==JSON.stringify(S.aiAdvice)){
-      S.updatedAt=remote.updatedAt||Date.now();
+    var hasNewFood=false;
+    if(remote.food){
+      Object.keys(remote.food).forEach(function(dt){
+        var rf=remote.food[dt],lf=(S.food||{})[dt];
+        if(!lf||((rf.items||[]).length>(lf.items||[]).length)||(rf.w>(lf.w||0)))hasNewFood=true;
+      });
+    }
+    var needPull=!silent
+      ||(remote.updatedAt&&remote.updatedAt>(S.updatedAt||0))
+      ||(remote.sessions&&remote.sessions.length>S.sessions.length)
+      ||hasNewFood
+      ||JSON.stringify(remote.customFoods||[])!==JSON.stringify(S.customFoods||[])
+      ||JSON.stringify(remote.customEx||{})!==JSON.stringify(S.customEx||{})
+      ||JSON.stringify(remote.aiAdvice)!==JSON.stringify(S.aiAdvice);
+    if(needPull){
+      S.updatedAt=Math.max(S.updatedAt||0,remote.updatedAt||Date.now());
       if(remote.profile)S.profile=Object.assign(S.profile,remote.profile);
       if(remote.aiAdvice)S.aiAdvice=remote.aiAdvice;
       if(remote.customPresets)S.customPresets=remote.customPresets;
       if(remote.customEx)S.customEx=Object.assign(S.customEx||{'胸':[],'腿':[],'肩':[],'背':[]},remote.customEx);
       if(remote.customFoods)S.customFoods=remote.customFoods;
       if(remote.bench)S.bench=Object.assign(S.bench,remote.bench);
-      if(remote.food)S.food=Object.assign(S.food,remote.food);
+      if(remote.food){
+        if(!S.food)S.food={};
+        Object.keys(remote.food).forEach(function(dt){
+          var rf=remote.food[dt],lf=S.food[dt];
+          if(!lf||!silent||(remote.updatedAt&&remote.updatedAt>=(S.updatedAt||0))){S.food[dt]=rf;}
+          else if((rf.items||[]).length&&!(lf.items||[]).length){S.food[dt]=rf;}
+        });
+      }
       if(remote.measures)S.measures=remote.measures;
       if(remote.sessions&&remote.sessions.length)S.sessions=remote.sessions;
       persist(true);renderAll();
@@ -1265,6 +1286,7 @@ if(attrs)Object.keys(attrs).forEach(function(k){e.setAttribute(k,String(attrs[k]
 
 function renderStore(){
 var c=el('storeChip'),t=el('storeTxt');
+if(!c||!t)return;
 c.classList.remove('ok','warn','bad');
 if(!storageOK){c.classList.add('bad');t.textContent='存储异常';return;}
 var last=latest();
