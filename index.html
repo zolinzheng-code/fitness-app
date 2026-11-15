@@ -1307,10 +1307,17 @@ function selectExOption(ex,mus,w,r,rir){
   if(r!==undefined&&r!==null)el('iR').value=r;
   if(rir!==undefined&&rir!==null)el('iRIR').value=rir;
   syncConv();
-  var btns=el('partExPills').querySelectorAll('.pillbtn');
-  for(var i=0;i<btns.length;i++){
-    btns[i].classList.toggle('on',btns[i].dataset.ex===ex);
+  var sel=el('exQuickSel'), isCustomSel=false;
+  if(sel){
+    for(var i=0;i<sel.options.length;i++){
+      if(sel.options[i].dataset.ex===ex){
+        sel.selectedIndex=i;
+        isCustomSel=(sel.options[i].value.indexOf('cus:')===0);
+        break;
+      }
+    }
   }
+  if(el('exCustomDel'))el('exCustomDel').classList.toggle('hide',!isCustomSel);
 }
 
 function renderRefPlan(part){
