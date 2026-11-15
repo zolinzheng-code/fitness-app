@@ -681,6 +681,18 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
 
 </div>
 
+<!-- Mobile Floating Bottom Nav (inspired by 训记 App) -->
+<nav class="bnav" id="bnav">
+  <div class="bnav-pill">
+    <button class="bn on" data-v="log"><span class="bi">🏋️</span><span>训练</span></button>
+    <button class="bn" data-v="nutri"><span class="bi">🥗</span><span>营养</span></button>
+    <button class="bn" data-v="review"><span class="bi">📊</span><span>复盘</span></button>
+    <button class="bn" data-v="hist"><span class="bi">📅</span><span>历史</span></button>
+    <button class="bn" data-v="data"><span class="bi">☁️</span><span>同步</span></button>
+  </div>
+  <button class="bnav-cta" id="bnavFab">+ 记1组</button>
+</nav>
+
 <!-- Drawer for editing historical session -->
 <div class="scrim" id="scrim"></div>
 <div class="drawer" id="drawer">
@@ -785,12 +797,16 @@ var PATTERN={'上斜史密斯杠铃卧推':'上斜推','上斜哑铃卧推30°':
 var QUICK=[
   {n:'甜菜根粉',g:10},{n:'蓝莓',g:80},{n:'树莓',g:80},{n:'黑莓',g:80},
   {n:'全麦面包',g:100},{n:'彩椒',g:150},{n:'小番茄',g:150},{n:'贝贝南瓜',g:150},
+  {n:'美式/黑咖啡(1杯)',g:250},{n:'咖啡粉/浓缩(g)',g:18},{n:'冰拿铁(含200ml纯奶)',g:250},
   {n:'乳清蛋白粉',g:30},{n:'鸡胸肉(生)',g:150},{n:'瘦牛肉(生)',g:120},{n:'鱼虾/海鲜(生)',g:150},
   {n:'全鸡蛋(1个≈50g)',g:100},{n:'熟米饭',g:150},{n:'燕麦片',g:60},{n:'无糖酸奶',g:135},{n:'纯牛奶',g:250}
 ];
 
 /* Per-100g Nutrient Database: p=protein(g), c=carb(g), f=fat(g), defG=default serving(g), tag=highlight */
 var FOOD_DB={
+  '美式/黑咖啡(1杯)':{p:0,c:0,f:0,defG:250,isCoffee:1,tag:'0卡路里！含咖啡因提神减脂，水份直接计入当日饮水(250ml≈1杯)'},
+  '咖啡粉/浓缩(g)':{p:0,c:0,f:0,defG:18,tag:'记干粉克重(约18g=1份双份浓缩)，0热量；冲泡的水请另外点「+1杯水」'},
+  '冰拿铁(含200ml纯奶)':{p:2.6,c:3.8,f:2.9,defG:250,tag:'浓缩+纯奶(250g总重≈200ml牛奶热量)：蛋白6.5g/碳水9.5g/脂肪7.2g'},
   '甜菜根粉':{p:10.0,c:70.0,f:1.0,defG:10,tag:'天然硝酸盐·提升NO泵感与耐力 (每100g: 碳水70g / 蛋白10g / 脂肪1g)'},
   '蓝莓':{p:0.7,c:14.5,f:0.3,defG:80,tag:'花青素抗氧化·低GI浆果 (每100g: 碳水14.5g / 蛋白0.7g)'},
   '树莓':{p:1.2,c:11.9,f:0.7,defG:80,tag:'高膳食纤维(6.5g)·极低糖浆果 (每100g: 碳水11.9g / 蛋白1.2g)'},
