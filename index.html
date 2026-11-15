@@ -2320,7 +2320,10 @@ el('fAddBtn').addEventListener('click',function(){addFoodItem();});
 el('nSave').addEventListener('click',function(){
 var d=el('nDate').value||today(),prevItems=(S.food[d]&&S.food[d].items)?S.food[d].items:[];
 S.food[d]={p:n(el('nP').value),c:n(el('nC').value),f:n(el('nF').value),w:n(el('nW').value),s:n(el('nS').value),items:prevItems};
-persist();renderNutri();toast('今日营养总计已保存','ok');});
+persist(true);renderNutri();
+var cc=loadCloudCfg();
+if(cc.token&&cc.id){cloudPush(false);}
+else{toast('⚠️ 仅本地保存！当前浏览器未绑云端，请点底部「同步」绑定','bad');}});
 el('waterAdd').addEventListener('click',function(){
 var d=el('nDate').value||today(),cur=S.food[d]||{p:0,c:0,f:0,w:0,s:7,items:[]};
 cur.w=n(cur.w)+1;S.food[d]=cur;persist();renderNutri();toast('💧 饮水 +1 杯 (共 '+cur.w+' 杯)','ok');});
@@ -2340,7 +2343,7 @@ persist();renderBody();toast('已记录今日围度','ok');});
 
 el('cloudChip').addEventListener('click',function(){
   var cc=loadCloudCfg();
-  if(cc.token&&cc.id)cloudPull(false);
+  if(cc.token&&cc.id)cloudSync(false);
   else go('data');
 });
 el('cInitBtn').addEventListener('click',cloudInit);
