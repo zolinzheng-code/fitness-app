@@ -2140,6 +2140,27 @@ el('iRIR').value='1';}
 
 function bind(){
 el('tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.dataset.v)go(b.dataset.v);});
+if(el('bnav')){
+  el('bnav').addEventListener('click',function(e){
+    var b=e.target.closest('.bnav-pill button');
+    if(b&&b.dataset.v)go(b.dataset.v);
+  });
+}
+if(el('bnavFab')){
+  el('bnavFab').addEventListener('click',function(){
+    if(curView==='nutri'){
+      var d=el('nDate').value||today(),cur=S.food[d]||{p:0,c:0,f:0,w:0,s:7,items:[]};
+      cur.w=n(cur.w)+1;S.food[d]=cur;persist();renderNutri();toast('💧 饮水 +1 杯 (共 '+cur.w+' 杯)','ok');
+    }else if(curView==='log'){
+      if(el('iEx').value.trim())addSet(1);
+      else{go('log');el('iEx').focus();toast('请先点选上方推荐动作或输入动作名称');}
+    }else{
+      var cc=loadCloudCfg();
+      if(cc.token&&cc.id)cloudPull(false);
+      else go('data');
+    }
+  });
+}
 el('iEx').addEventListener('change',function(){var m=EXMAP[this.value];if(m)el('iMus').value=m;syncConv();renderPartPills(el('sPart').value);});
 el('iEx').addEventListener('input',syncConv);
 el('rirPills').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
@@ -2222,7 +2243,14 @@ el('gramPills').addEventListener('click',function(e){
   b.classList.add('on');
   updateFoodPreview();
 });
-el('fAddBtn').addEventListener('click',addFoodItem);
+el('fAddBtn').addEventListener('click',function(){addFoodItem();});
+if(el('nQuickStrip')){
+  el('nQuickStrip').addEventListener('click',function(e){
+    var b=e.target.closest('[data-qfood]');
+    if(!b)return;
+    addFoodItem(b.dataset.qfood,n(b.dataset.qgram)||100);
+  });
+}
 el('nSave').addEventListener('click',function(){
 var d=el('nDate').value||today(),prevItems=(S.food[d]&&S.food[d].items)?S.food[d].items:[];
 S.food[d]={p:n(el('nP').value),c:n(el('nC').value),f:n(el('nF').value),w:n(el('nW').value),s:n(el('nS').value),items:prevItems};
@@ -2261,7 +2289,7 @@ el('cCopyCode').addEventListener('click',function(){
   if(!cc.token||!cc.id){toast('请先连接云端生成 ID','bad');return;}
   copyText('#cloud='+cc.provider+':'+cc.token+':'+cc.id,'📱 手机绑定码已复制！发到手机粘贴即可一键连通');
 });
-el('packBtn').addEventListener('click',function(){copyText(coachPack(),'教练复盘包已复制，可直接粘贴给AI');});
+if(el('packBtn'))el('packBtn').addEventListener('click',function(){copyText(coachPack(),'教练复盘包已复制，可直接粘贴给AI');});
 el('packCopy').addEventListener('click',function(){copyText(coachPack(),'教练复盘包已复制');});
 el('packDl').addEventListener('click',function(){download('教练数据包-'+today()+'.txt',coachPack());});
 el('expDl').addEventListener('click',function(){download('训练台备份-'+today()+'.json',JSON.stringify(S),'application/json;charset=utf-8');});
