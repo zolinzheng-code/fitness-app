@@ -264,17 +264,8 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
 <body>
 <div class="shell">
 
-  <!-- Top Bar (No Title, Compact Mobile Layout) -->
+  <!-- Top Bar (Desktop Tabs Only, Zero Clipped Pills) -->
   <div class="top">
-    <div class="bar">
-      <div class="bar-r">
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-          <span class="chip" id="cloudChip" style="cursor:pointer" title="点击同步云端"><i class="dot"></i><span id="cloudTxt">☁️ 未绑云端</span></span>
-          <span class="chip" id="storeChip"><i class="dot"></i><span id="storeTxt">—</span></span>
-        </div>
-        <button class="btn cool xs" id="packBtn">📋 复制教练包</button>
-      </div>
-    </div>
     <div class="tabs" id="tabs">
       <button data-v="log" class="on">1. 记训练</button>
       <button data-v="nutri">2. 记营养</button>
@@ -282,6 +273,7 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
       <button data-v="hist">4. 历史与趋势</button>
       <button data-v="body">5. 身体与基准</button>
       <button data-v="data">6. ☁️ 云同步</button>
+      <span class="chip" id="cloudChip" style="cursor:pointer;margin-left:auto" title="点击同步云端"><i class="dot"></i><span id="cloudTxt">☁️ 未绑云端</span></span>
     </div>
   </div>
 
