@@ -1119,6 +1119,50 @@ function cloudPull(silent){
   });
 }
 
+function cloudSync(silent){
+  var cc=loadCloudCfg();
+  if(!cc.token||!cc.id){if(!silent)toast('⚠️ 尚未绑定云端！请先粘贴绑定码','bad');return;}
+  cloudState='syncing';renderCloudStatus();
+  var url=cc.provider==='jsonbin'?('https://api.jsonbin.io/v3/b/'+cc.id+'/latest'):('https://api.github.com/gists/'+cc.id);
+  var headers={};
+  if(cc.provider==='jsonbin')headers['X-Master-Key']=cc.token;
+  else{headers['Authorization']='token '+cc.token;headers['Accept']='application/vnd.github+json';}
+  fetch(url,{headers:headers,cache:'no-store'}).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  }).then(function(res){
+    var remote=null;
+    if(cc.provider==='jsonbin')remote=res.record||res;
+    else{
+      var files=res.files||{};
+      var fobj=files[CLOUDFILE]||files[Object.keys(files)[0]];
+      if(fobj&&fobj.content)remote=JSON.parse(fobj.content);
+    }
+    if(remote){
+      if(remote.aiAdvice)S.aiAdvice=remote.aiAdvice;
+      if(remote.food){
+        if(!S.food)S.food={};
+        Object.keys(remote.food).forEach(function(dt){
+          var rf=remote.food[dt],lf=S.food[dt];
+          if(!lf){S.food[dt]=rf;}
+          else if((rf.items||[]).length>(lf.items||[]).length && !n(lf.p) && !n(lf.c)){S.food[dt]=rf;}
+        });
+      }
+      if(remote.sessions&&remote.sessions.length){
+        var seen={};S.sessions.forEach(function(s){if(s.id)seen[s.id]=1;});
+        remote.sessions.forEach(function(rs){if(rs.id&&!seen[rs.id])S.sessions.push(rs);});
+        S.sessions.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
+      }
+      if(remote.customFoods&&!(S.customFoods||[]).length)S.customFoods=remote.customFoods;
+      persist(true);renderAll();
+    }
+    cloudPush(silent);
+  }).catch(function(e){
+    cloudState='err';renderCloudStatus();
+    if(!silent)toast('云端同步失败: '+e.message,'bad');
+  });
+}
+
 function cloudInit(){
   var prov=el('cProv').value, token=el('cToken').value.trim(), cid=el('cId').value.trim();
   if(!token){toast('请填写访问密钥 Token','bad');return;}
@@ -2142,7 +2186,7 @@ if(el('bnavFab')){
       else{go('log');el('iEx').focus();toast('请先点选上方推荐动作或输入动作名称');}
     }else{
       var cc=loadCloudCfg();
-      if(cc.token&&cc.id)cloudPull(false);
+      if(cc.token&&cc.id)cloudSync(false);
       else go('data');
     }
   });
