@@ -1895,6 +1895,26 @@ f.items.forEach(function(it,idx){
 });
 
 var kc=n(f.p)*4+n(f.c)*4+n(f.f)*9,nums=el('nNums');clear(nums);
+var rk=el('nRingKcal'), rg=el('nRingsGrid');
+if(rk)rk.innerHTML=Math.round(kc)+'<span> / 目标 '+tg.kcal+' 大卡</span>';
+if(rg){
+  clear(rg);
+  var wMl=Math.round(n(f.w)*250), wTarget=2500;
+  var rings=[
+    {lbl:'蛋白 (g)',val:Math.round(n(f.p)),max:tg.p,col:'#FFB020'},
+    {lbl:'碳水 (g)',val:Math.round(n(f.c)),max:tg.c,col:'#6366F1'},
+    {lbl:'脂肪 (g)',val:Math.round(n(f.f)),max:tg.f,col:'#FF4D8D'},
+    {lbl:'饮水 (ml)',val:wMl,max:wTarget,col:'#35D6E8'}
+  ];
+  var r=27, circ=2*Math.PI*r;
+  rings.forEach(function(rgItem){
+    var pct=rgItem.max>0?Math.min(100,Math.round(rgItem.val/rgItem.max*100)):0;
+    var off=circ*(1-pct/100);
+    var box=document.createElement('div');box.className='ring-box';
+    box.innerHTML='<div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 68 68"><circle class="ring-bg" cx="34" cy="34" r="'+r+'"/><circle class="ring-fg" cx="34" cy="34" r="'+r+'" stroke="'+rgItem.col+'" stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg><div class="ring-val"><b style="color:'+rgItem.col+'">'+rgItem.val+'</b><span>/'+rgItem.max+'</span></div></div><div class="ring-lbl">'+rgItem.lbl+'</div><div class="ring-pct">'+pct+'%</div>';
+    rg.appendChild(box);
+  });
+}
 metric(nums,'今日热量',Math.round(kc)+' kcal','目标 '+tg.kcal+' (TDEE '+Math.round(tdee())+')',kc>tdee()?'bad':'ok');
 metric(nums,'蛋白质',fmt(n(f.p))+' g','目标 '+tg.p+'g (150–160g)',n(f.p)>=150?'ok':'bad');
 metric(nums,'饮水',fmt(n(f.w)*.25,2)+' L',n(f.w)+' 杯 · 目标 10+杯',n(f.w)>=10?'ok':'warn');
@@ -1908,6 +1928,24 @@ barItem(bh,'碳水化合物',fmt(n(f.c))+' / '+tg.c+' g','训练表现燃料','c
 barItem(bh,'脂肪',fmt(n(f.f))+' / '+tg.f+' g','激素合成底物','cy',tg.f?n(f.f)/tg.f*100:0,'');
 var gap=tg.p-n(f.p);
 el('nNote').textContent=gap>5?('今日蛋白还差 '+fmt(gap,0)+'g。推荐补法：乳清蛋白 30g (+'+wheyP()+'g) 或 鸡胸150g (+33g) 或 无糖酸奶135g+全蛋2个 (+26g)。'):'今日蛋白质已充足！注意红肉每日控制在 100–120g 生重内。';
+var rl=el('nRecentList');
+if(rl){
+  clear(rl);
+  var fDates=Object.keys(S.food||{}).filter(function(dt){
+    var x=S.food[dt];return x&&(n(x.p)>0||n(x.c)>0||n(x.f)>0||n(x.w)>0||(x.items&&x.items.length));
+  }).sort().reverse().slice(0,7);
+  if(!fDates.length){
+    rl.innerHTML='<div class="empty">暂无已保存的饮食记录。手机端记完后点击「云同步」，电脑端刷新即可在此看到每日台账。</div>';
+  }else{
+    fDates.forEach(function(dt){
+      var x=S.food[dt], k=Math.round(n(x.p)*4+n(x.c)*4+n(x.f)*9);
+      var names=(x.items||[]).map(function(i){return i.name+'('+i.g+'g)';}).join('、');
+      var it=item(rl,dt+(dt===d?' · 当前查看':''),'蛋白 '+fmt(n(x.p),0)+'g · 碳水 '+fmt(n(x.c),0)+'g · 脂肪 '+fmt(n(x.f),0)+'g · 饮水 '+n(x.w)+'杯'+(names?(' ｜ 食物：'+names):''),k+' kcal',dt===d?'cy':'ok');
+      it.style.cursor='pointer';
+      it.addEventListener('click',function(){el('nDate').value=dt;renderNutri();});
+    });
+  }
+}
 renderProChart();
 var sp=el('supp');clear(sp);
 item(sp,'一水肌酸 5g / 天','训练日与休息日均服。细胞内储水增重 1–2kg 属正常现象，只要腰围不涨即无需担心。','每日必服','ok');
@@ -2067,10 +2105,21 @@ catch(e){toast('导入失败：JSON 格式无效','bad');}}
 
 /* SECTION: router & init */
 var VIEWS=['log','nutri','review','hist','body','data'];
+var curView='log';
 function go(v){
+curView=v;
 VIEWS.forEach(function(k){el('v-'+k).classList.toggle('hide',k!==v);});
 var bs=el('tabs').querySelectorAll('button');
 for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].dataset.v===v);
+var bnav=el('bnav');
+if(bnav){
+  var bns=bnav.querySelectorAll('.bnav-pill button');
+  for(var j=0;j<bns.length;j++)bns[j].classList.toggle('on',bns[j].dataset.v===v);
+}
+var fab=el('bnavFab');
+if(fab){
+  fab.textContent=(v==='nutri')?'💧 +1杯':(v==='log'?'+ 记1组':'☁️ 同步');
+}
 if(v==='review')renderReview();if(v==='log')renderLog();if(v==='hist')renderHist();
 if(v==='nutri')renderNutri();if(v==='body')renderBody();if(v==='data')renderData();
 try{history.replaceState(null,'','#'+v);}catch(e){}
