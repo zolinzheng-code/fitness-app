@@ -488,27 +488,6 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
       </div>
     </div>
 
-    <!-- Symmetrical Daily Totals & Water/Sleep Panel -->
-    <div class="card" style="margin-top:12px">
-      <div class="ch">
-        <h2>今日营养总计与恢复（支持直接微调）</h2>
-        <div class="row">
-          <button class="btn ghost sm" id="waterAdd">💧 +1杯水</button>
-          <button class="btn cool sm" id="nSave">保存总计</button>
-        </div>
-      </div>
-      <div class="sym3" style="margin-bottom:8px">
-        <div><label>记录日期</label><input type="date" id="nDate"></div>
-        <div><label>饮水 杯(250ml)</label><input type="number" id="nW" inputmode="numeric" placeholder="10"></div>
-        <div class="span2-sm"><label>睡眠 小时</label><input type="number" id="nS" inputmode="decimal" step="0.5" placeholder="7.5"></div>
-      </div>
-      <div class="sym3">
-        <div><label>蛋白质 g (目标155)</label><input type="number" id="nP" inputmode="decimal"></div>
-        <div><label>碳水 g (目标235)</label><input type="number" id="nC" inputmode="decimal"></div>
-        <div class="span2-sm"><label>脂肪 g (目标65)</label><input type="number" id="nF" inputmode="decimal"></div>
-      </div>
-    </div>
-
     <div class="card" style="margin-top:12px">
       <div class="ch"><h2>今日达标进度</h2></div>
       <div class="grid g4" id="nNums"></div>
@@ -719,7 +698,7 @@ box-shadow:var(--sh-2);transform:translateX(102%);transition:transform .25s ease
 var KEY='trainstand_v1', BAKPRE='trainstand_bak_', OLDKEY='fittrack_v1';
 var MUSCLES=['胸','背','肩前束','肩中束','肩后束','二头','三头','股四','腘绳/臀','内收肌','小腿','竖脊肌','腹/核心'];
 var CAP_LO=8, CAP_HI=12, MIN_LOAD=30, EFF_LOAD=60;
-var NEXT_PART={'胸':'腿','腿':'肩','肩':'背','背':'胸'};
+var NEXT_PART={'胸':'背','背':'腿','腿':'肩','肩':'胸'};
 var HUES=['#C8F24E','#35D6E8','#FF6B35','#FF4D8D','#9B7BFF','#FFB020','#3DDC84','#B3A695'];
 
 var EXMAP={
@@ -1875,7 +1854,6 @@ function addFoodItem(customName,customGram){
 function renderNutri(){
 var d=el('nDate').value||today(),f=S.food[d]||{p:0,c:0,f:0,w:0,s:7,items:[]},tg=targets();
 if(!f.items)f.items=[];
-el('nP').value=f.p||'';el('nC').value=f.c||'';el('nF').value=f.f||'';
 el('nW').value=f.w||'';el('nS').value=f.s||'';
 el('nTargetTag').textContent='重组目标：'+tg.kcal+' kcal · 蛋白 '+tg.p+'g · 碳水 '+tg.c+'g · 脂肪 '+tg.f+'g';
 
@@ -2336,8 +2314,8 @@ if(el('fCustomDel')){
 }
 el('fAddBtn').addEventListener('click',function(){addFoodItem();});
 el('nSave').addEventListener('click',function(){
-var d=el('nDate').value||today(),prevItems=(S.food[d]&&S.food[d].items)?S.food[d].items:[];
-S.food[d]={p:n(el('nP').value),c:n(el('nC').value),f:n(el('nF').value),w:n(el('nW').value),s:n(el('nS').value),items:prevItems};
+var d=el('nDate').value||today(),cur=S.food[d]||{p:0,c:0,f:0,w:0,s:7,items:[]};
+S.food[d]={p:n(cur.p),c:n(cur.c),f:n(cur.f),w:n(el('nW').value),s:n(el('nS').value),items:cur.items||[]};
 persist(true);renderNutri();
 var cc=loadCloudCfg();
 if(cc.token&&cc.id){cloudPush(false);}
