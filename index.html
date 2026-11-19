@@ -1086,6 +1086,7 @@ function cloudPull(silent){
       ||hasNewFood
       ||JSON.stringify(remote.customFoods||[])!==JSON.stringify(S.customFoods||[])
       ||JSON.stringify(remote.customEx||{})!==JSON.stringify(S.customEx||{})
+      ||JSON.stringify(remote.profile||{})!==JSON.stringify(S.profile||{})
       ||JSON.stringify(remote.aiAdvice)!==JSON.stringify(S.aiAdvice);
     if(needPull){
       S.updatedAt=Math.max(S.updatedAt||0,remote.updatedAt||Date.now());
